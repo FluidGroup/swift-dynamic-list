@@ -14,7 +14,6 @@ let package = Package(
     )
   ],
   dependencies: [
-    .package(url: "https://github.com/FluidGroup/swiftui-hosting", from: "1.1.0"),
     .package(url: "https://github.com/FluidGroup/swiftui-support", from: "0.4.1"),
   ],
   targets: [
@@ -23,7 +22,6 @@ let package = Package(
     .target(
       name: "swift-dynamic-list",
       dependencies: [
-        .product(name: "SwiftUIHosting", package: "swiftui-hosting"),
         .product(name: "SwiftUISupport", package: "swiftui-support")
       ]
     ),

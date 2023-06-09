@@ -10,15 +10,6 @@
       }
     },
     {
-      "identity" : "swiftui-hosting",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/FluidGroup/swiftui-hosting",
-      "state" : {
-        "revision" : "064204fab9a34aeb267b2418e1037006d043c147",
-        "version" : "1.1.0"
-      }
-    },
-    {
       "identity" : "swiftui-support",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/FluidGroup/swiftui-support",

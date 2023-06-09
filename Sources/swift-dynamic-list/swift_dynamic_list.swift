@@ -1,8 +1,8 @@
 import SwiftUI
-import SwiftUIHosting
 import SwiftUISupport
 import UIKit
 
+#if DEBUG
 struct CustomList<Content: View>: View {
 
   let tree: _VariadicView.Tree<VariadicViewProxy, Content>
@@ -58,11 +58,11 @@ struct _CollectionView: UIViewRepresentable {
 
     let view = View(scrollDirection: .vertical)
 
-    view.registerCell(DynamicSizingCollectionViewCell.self)
+    view.registerCell(VersatileCell.self)
     view.setUp(
       cellProvider: { context in
 
-        let cell = context.dequeueReusableCell(DynamicSizingCollectionViewCell.self)
+        let cell = context.dequeueReusableCell(VersatileCell.self)
 
         if #available(iOS 16, *) {
 
@@ -72,13 +72,13 @@ struct _CollectionView: UIViewRepresentable {
           .margins(.all, 0)
 
         } else {
-          cell.contentConfiguration = _Configuration(context.data.value)
+          cell.contentConfiguration = HostingConfiguration(context.data.value)
         }
 
         return cell
 
       },
-      actionHandler: { action in
+      actionHandler: { list, action in
 
       }
     )
@@ -111,6 +111,8 @@ class _UICollectionViewCompositionalLayout: UICollectionViewCompositionalLayout 
   }
 }
 
+#endif
+
 // MARK: - Preview
 
 #if DEBUG
@@ -137,7 +139,6 @@ struct BookVariadicView: View, PreviewProvider {
       }
     }
 
-
   }
 
   static var previews: some View {
@@ -152,9 +153,12 @@ struct BookVariadicView: View, PreviewProvider {
       VStack {
         ScrollView {
           LazyVStack(spacing: 0) {
-            ForEach(items, content: {
-              ComplexCell(message: $0)
-            })
+            ForEach(
+              items,
+              content: {
+                ComplexCell(message: $0)
+              }
+            )
           }
         }
       }
@@ -168,9 +172,12 @@ struct BookVariadicView: View, PreviewProvider {
     var body: some View {
       VStack {
         CustomList {
-          ForEach(items, content: {
-            ComplexCell(message: $0)
-          })
+          ForEach(
+            items,
+            content: {
+              ComplexCell(message: $0)
+            }
+          )
         }
       }
     }

@@ -13,7 +13,23 @@
 		4B26A6822A33239600B75FB4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4B26A6812A33239600B75FB4 /* Preview Assets.xcassets */; };
 		4B26A68D2A3323E900B75FB4 /* swift-dynamic-list in Frameworks */ = {isa = PBXBuildFile; productRef = 4B26A68C2A3323E900B75FB4 /* swift-dynamic-list */; };
 		4B3722682A33C701005FF24A /* UIKitBased.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B3722672A33C701005FF24A /* UIKitBased.swift */; };
+		4B9981D32A33D7C100840751 /* RevealServer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B9981D12A33D51400840751 /* RevealServer.xcframework */; };
+		4B9981D42A33D7C100840751 /* RevealServer.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4B9981D12A33D51400840751 /* RevealServer.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4B9981D52A33D7C100840751 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4B9981D42A33D7C100840751 /* RevealServer.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4B26A6772A33239500B75FB4 /* Development.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Development.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -23,6 +39,7 @@
 		4B26A6812A33239600B75FB4 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		4B26A68A2A3323D400B75FB4 /* swift-dynamic-list */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swift-dynamic-list"; path = ..; sourceTree = "<group>"; };
 		4B3722672A33C701005FF24A /* UIKitBased.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitBased.swift; sourceTree = "<group>"; };
+		4B9981D12A33D51400840751 /* RevealServer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = RevealServer.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +48,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4B26A68D2A3323E900B75FB4 /* swift-dynamic-list in Frameworks */,
+				4B9981D32A33D7C100840751 /* RevealServer.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,6 +58,7 @@
 		4B26A66E2A33239500B75FB4 = {
 			isa = PBXGroup;
 			children = (
+				4B9981D12A33D51400840751 /* RevealServer.xcframework */,
 				4B26A68A2A3323D400B75FB4 /* swift-dynamic-list */,
 				4B26A6792A33239500B75FB4 /* Development */,
 				4B26A6782A33239500B75FB4 /* Products */,
@@ -92,6 +111,7 @@
 				4B26A6732A33239500B75FB4 /* Sources */,
 				4B26A6742A33239500B75FB4 /* Frameworks */,
 				4B26A6752A33239500B75FB4 /* Resources */,
+				4B9981D52A33D7C100840751 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

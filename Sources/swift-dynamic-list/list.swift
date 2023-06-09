@@ -1,3 +1,4 @@
+import SwiftUI
 import UIKit
 
 /// Preimplemented list view using UICollectionView and UICollectionViewCompositionalLayout.
@@ -25,6 +26,13 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
       ) as! Cell
     }
 
+    public func dequeueDefaultCell() -> VersatileCell {
+      return collectionView.dequeueReusableCell(
+        withReuseIdentifier: "DynamicSizingCollectionViewCell",
+        for: indexPath
+      ) as! VersatileCell
+    }
+
   }
 
   public enum Action {
@@ -44,7 +52,9 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
 
   private var _cellProvider: ((CellProviderContext) -> UICollectionViewCell)?
 
-  private var _actionHandler: @MainActor (Action) -> Void = { action in
+  private var _actionHandler: @MainActor (DynamicCompositionalLayoutView, Action) -> Void = {
+    _self,
+    action in
     switch action {
     case .didSelect:
       break
@@ -121,6 +131,10 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
 
     self.dataSource = dataSource
 
+    self.collectionView.register(
+      VersatileCell.self,
+      forCellWithReuseIdentifier: "DynamicSizingCollectionViewCell"
+    )
     self.collectionView.delegate = self
     self.collectionView.dataSource = dataSource
     self.collectionView.delaysContentTouches = false
@@ -132,6 +146,7 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
 
       await withCheckedContinuation { c in
         self._actionHandler(
+          self,
           .batchFetch({ task in
             Task {
               await task()
@@ -235,7 +250,7 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
 
   public func setUp(
     cellProvider: @escaping (CellProviderContext) -> UICollectionViewCell,
-    actionHandler: @escaping @MainActor (Action) -> Void
+    actionHandler: @escaping @MainActor (DynamicCompositionalLayoutView, Action) -> Void
   ) {
 
     _actionHandler = actionHandler
@@ -320,7 +335,7 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
     didSelectItemAt indexPath: IndexPath
   ) {
     let item = dataSource.itemIdentifier(for: indexPath)!
-    _actionHandler(.didSelect(item))
+    _actionHandler(self, .didSelect(item))
   }
 
 }
@@ -333,7 +348,7 @@ public enum DynamicCompositionalLayoutSingleSection: Hashable {
   case main
 }
 
-open class DynamicSizingCollectionViewCell: UICollectionViewCell {
+open class VersatileCell: UICollectionViewCell {
 
   public override init(
     frame: CGRect
@@ -349,13 +364,17 @@ open class DynamicSizingCollectionViewCell: UICollectionViewCell {
   }
 
   open override func invalidateIntrinsicContentSize() {
-    //    if #available(iOS 16, *) {
-    //      // from iOS 16, auto-resizing runs
-    //      super.invalidateIntrinsicContentSize()
-    //    } else {
-    super.invalidateIntrinsicContentSize()
-    //      self.layoutWithInvalidatingCollectionViewLayout(animated: true)
-    //    }
+    if #available(iOS 16, *) {
+      // from iOS 16, auto-resizing runs
+      super.invalidateIntrinsicContentSize()
+    } else {
+      super.invalidateIntrinsicContentSize()
+      self.layoutWithInvalidatingCollectionViewLayout(animated: true)
+    }
+  }
+
+  public func setSwiftUIContent<Content: SwiftUI.View>(@ViewBuilder _ content: () -> Content) {
+    contentConfiguration = HostingConfiguration(content)
   }
 
   public func layoutWithInvalidatingCollectionViewLayout(animated: Bool) {
