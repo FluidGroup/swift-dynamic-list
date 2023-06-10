@@ -3,7 +3,9 @@ import UIKit
 import swift_dynamic_list
 import os
 
-let log = Logger(subsystem: "Demo", category: "Log")
+let debug = OSLog(subsystem: "D", category: .dynamicStackTracing)
+
+let log = Logger(subsystem: "Demo", category: "Default")
 
 struct BookUIKitBased: View, PreviewProvider {
   var body: some View {
@@ -127,18 +129,30 @@ struct BookUIKitBased: View, PreviewProvider {
             }
           case .b(let v):
             cell.setSwiftUIContent {
-              VStack {
-                Button("Action") {
-                  log.debug("Tap Action")
-                }
-                Text("\(v.name)")
-                  .foregroundColor(Color.green)
-                  .redacted(reason: .placeholder)
+              Button {
 
-                Text("\(v.introduction)")
-                  .foregroundColor(Color.green)
-                  .redacted(reason: .placeholder)
+              } label: {
+                VStack {
+                  Button("Action") {
+                    print("Action")
+                  }
+                  Text("\(v.name)")
+                    .foregroundColor(Color.green)
+                    .redacted(reason: .placeholder)
+                  
+                  Text("\(v.introduction)")
+                    .foregroundColor(Color.green)
+                    .redacted(reason: .placeholder)
+                }
+//                ._onButtonGesture(pressing: { isPressing in
+//                  print("Pressing \(isPressing)")
+//                  
+//                }, perform: {
+//                  print("Pressed")
+//                  
+//                })
               }
+
             }
           }
 
@@ -161,7 +175,7 @@ struct BookUIKitBased: View, PreviewProvider {
 
             }
           case .didSelect(let item):
-            log.debug("Selected \(String(describing: item))")
+            print("Selected \(String(describing: item))")
             break
           }
         }

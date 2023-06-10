@@ -350,6 +350,12 @@ public enum DynamicCompositionalLayoutSingleSection: Hashable {
 
 open class VersatileCell: UICollectionViewCell {
 
+//  open override var isHighlighted: Bool {
+//    didSet {
+//      alpha = isHighlighted ? 0.5 : 1
+//    }
+//  }
+
   public override init(
     frame: CGRect
   ) {

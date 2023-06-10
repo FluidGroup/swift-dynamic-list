@@ -1,6 +1,33 @@
 {
   "pins" : [
     {
+      "identity" : "compositionkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FluidGroup/CompositionKit.git",
+      "state" : {
+        "revision" : "c7b2bbb2eed8318ad886f2815ac6cb275318db5d",
+        "version" : "0.4.4"
+      }
+    },
+    {
+      "identity" : "descriptors",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/muukii/Descriptors.git",
+      "state" : {
+        "revision" : "f41ce2605a76c5d378fe8c5e8c5c98b544dfd108",
+        "version" : "0.2.3"
+      }
+    },
+    {
+      "identity" : "mondrianlayout",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/muukii/MondrianLayout.git",
+      "state" : {
+        "revision" : "5f00b13984fe08316fc5b5be06e2f41c14a3befa",
+        "version" : "0.10.0"
+      }
+    },
+    {
       "identity" : "swiftui-gesture-velocity",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/FluidGroup/swiftui-gesture-velocity",
