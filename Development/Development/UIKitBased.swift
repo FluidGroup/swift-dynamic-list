@@ -113,11 +113,9 @@ struct BookUIKitBased: View, PreviewProvider {
       list.setUp(
         cellProvider: { context in
 
-          let cell = context.dequeueDefaultCell()
-
           switch context.data {
           case .a(let v):
-            cell.setSwiftUIContent {
+            return context.cell(reuseIdentifier: "A") {
               HStack {
                 Text("\(v.name)")
                   .redacted(reason: .placeholder)
@@ -128,7 +126,7 @@ struct BookUIKitBased: View, PreviewProvider {
               .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.green.opacity(0.2)))
             }
           case .b(let v):
-            cell.setSwiftUIContent {
+            return context.cell(reuseIdentifier: "B") {
               Button {
 
               } label: {
@@ -156,7 +154,6 @@ struct BookUIKitBased: View, PreviewProvider {
             }
           }
 
-          return cell
         },
         actionHandler: { [weak self] list, action in
           guard let self else { return }

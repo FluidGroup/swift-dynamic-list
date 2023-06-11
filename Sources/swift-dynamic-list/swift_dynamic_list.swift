@@ -90,14 +90,6 @@ struct _CollectionView: UIViewRepresentable {
   }
 }
 
-class CollectionView: UICollectionView {
-
-  override func layoutSubviews() {
-    super.layoutSubviews()
-  }
-
-}
-
 class _UICollectionViewCompositionalLayout: UICollectionViewCompositionalLayout {
 
   override func invalidateLayout() {

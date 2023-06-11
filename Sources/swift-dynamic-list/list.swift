@@ -15,22 +15,56 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
   @MainActor
   public struct CellProviderContext {
 
-    public unowned let collectionView: UICollectionView
+    public var collectionView: UICollectionView {
+      _collectionView
+    }
+
+    unowned let _collectionView: CollectionView
+
     public let data: Data
     public let indexPath: IndexPath
 
     public func dequeueReusableCell<Cell: UICollectionViewCell>(_ cellType: Cell.Type) -> Cell {
-      return collectionView.dequeueReusableCell(
+      return _collectionView.dequeueReusableCell(
         withReuseIdentifier: _typeName(Cell.self),
         for: indexPath
       ) as! Cell
     }
 
     public func dequeueDefaultCell() -> VersatileCell {
-      return collectionView.dequeueReusableCell(
+      return _collectionView.dequeueReusableCell(
         withReuseIdentifier: "DynamicSizingCollectionViewCell",
         for: indexPath
       ) as! VersatileCell
+    }
+
+    public func cell<Configuration: UIContentConfiguration>(
+      reuseIdentifier: String,
+      withConfiguration contentConfiguration: Configuration
+    ) -> some UICollectionViewCell {
+
+      if _collectionView.cellForIdentifiers.contains(reuseIdentifier) == false {
+
+        Log.debug(.generic, "Register Cell : \(reuseIdentifier)")
+
+        _collectionView.register(VersatileCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+      }
+
+      let cell = _collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
+
+      cell.contentConfiguration = contentConfiguration
+
+      return cell
+
+    }
+
+    public func cell(
+      reuseIdentifier: String,
+      @ViewBuilder content: () -> some View
+    ) -> some UICollectionViewCell {
+
+      self.cell(reuseIdentifier: reuseIdentifier, withConfiguration: HostingConfiguration(content))
+
     }
 
   }
@@ -41,13 +75,17 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
   }
 
   public var scrollView: UIScrollView {
-    collectionView
+    _collectionView
   }
 
-  public let collectionView: UICollectionView
+  public var collectionView: UICollectionView {
+    _collectionView
+  }
+
+  private let _collectionView: CollectionView
 
   public var layout: UICollectionViewCompositionalLayout {
-    collectionView.collectionViewLayout as! UICollectionViewCompositionalLayout
+    _collectionView.collectionViewLayout as! UICollectionViewCompositionalLayout
   }
 
   private var _cellProvider: ((CellProviderContext) -> UICollectionViewCell)?
@@ -74,9 +112,9 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
     contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .automatic
   ) {
 
-    self.collectionView = CollectionView.init(frame: .null, collectionViewLayout: layout)
+    self._collectionView = CollectionView.init(frame: .null, collectionViewLayout: layout)
     self.contentPagingTrigger = .init(
-      scrollView: collectionView,
+      scrollView: _collectionView,
       trackingScrollDirection: {
         switch layout.configuration.scrollDirection {
         case .vertical:
@@ -93,18 +131,18 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
     super.init(frame: .null)
 
     self.backgroundColor = .clear
-    self.collectionView.backgroundColor = .clear
-    self.collectionView.contentInsetAdjustmentBehavior = contentInsetAdjustmentBehavior
+    self._collectionView.backgroundColor = .clear
+    self._collectionView.contentInsetAdjustmentBehavior = contentInsetAdjustmentBehavior
 
-    self.addSubview(collectionView)
+    self.addSubview(_collectionView)
 
-    collectionView.translatesAutoresizingMaskIntoConstraints = false
+    _collectionView.translatesAutoresizingMaskIntoConstraints = false
 
     NSLayoutConstraint.activate([
-      collectionView.topAnchor.constraint(equalTo: topAnchor),
-      collectionView.rightAnchor.constraint(equalTo: rightAnchor),
-      collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
-      collectionView.leftAnchor.constraint(equalTo: leftAnchor),
+      _collectionView.topAnchor.constraint(equalTo: topAnchor),
+      _collectionView.rightAnchor.constraint(equalTo: rightAnchor),
+      _collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
+      _collectionView.leftAnchor.constraint(equalTo: leftAnchor),
     ])
 
     let dataSource = UICollectionViewDiffableDataSource<Section, Data>(
@@ -119,7 +157,7 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
         let data = item
 
         let context = CellProviderContext.init(
-          collectionView: collectionView,
+          _collectionView: collectionView as! CollectionView,
           data: data,
           indexPath: indexPath
         )
@@ -131,13 +169,13 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
 
     self.dataSource = dataSource
 
-    self.collectionView.register(
+    self._collectionView.register(
       VersatileCell.self,
       forCellWithReuseIdentifier: "DynamicSizingCollectionViewCell"
     )
-    self.collectionView.delegate = self
+    self._collectionView.delegate = self
     self.collectionView.dataSource = dataSource
-    self.collectionView.delaysContentTouches = false
+    self._collectionView.delaysContentTouches = false
     //    self.collectionView.isPrefetchingEnabled = false
     //    self.collectionView.prefetchDataSource = nil
 
@@ -160,7 +198,7 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
 
     #if swift(>=5.7)
     if #available(iOS 16.0, *) {
-      assert(self.collectionView.selfSizingInvalidation == .enabled)
+      assert(self._collectionView.selfSizingInvalidation == .enabled)
     }
     #endif
 
@@ -242,7 +280,7 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
   public func registerCell<Cell: UICollectionViewCell>(
     _ cellType: Cell.Type
   ) {
-    collectionView.register(
+    _collectionView.register(
       cellType,
       forCellWithReuseIdentifier: _typeName(Cell.self)
     )
@@ -313,7 +351,7 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
   }
 
   public func setContentInset(_ insets: UIEdgeInsets) {
-    collectionView.contentInset = insets
+    _collectionView.contentInset = insets
   }
 
   public func scroll(
@@ -325,7 +363,7 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
       return
     }
 
-    collectionView.scrollToItem(at: indexPath, at: scrollPosition, animated: animated)
+    _collectionView.scrollToItem(at: indexPath, at: scrollPosition, animated: animated)
   }
 
   // MARK: - UICollectionViewDelegate
@@ -338,6 +376,16 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
     _actionHandler(self, .didSelect(item))
   }
 
+}
+
+internal final class CollectionView: UICollectionView {
+
+  fileprivate var cellForIdentifiers: Set<String> = .init()
+
+  override func register(_ cellClass: AnyClass?, forCellWithReuseIdentifier identifier: String) {
+    cellForIdentifiers.insert(identifier)
+    super.register(cellClass, forCellWithReuseIdentifier: identifier)
+  }
 }
 
 @available(iOS 13, *)
