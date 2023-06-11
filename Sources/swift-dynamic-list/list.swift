@@ -12,6 +12,11 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
   UICollectionViewDelegate
 {
 
+  public enum SelectionAction {
+    case didSelect(Data)
+    case didDeselect(Data)
+  }
+
   @MainActor
   public struct CellProviderContext {
 
@@ -40,7 +45,9 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
 
     public func cell<Configuration: UIContentConfiguration>(
       reuseIdentifier: String,
-      withConfiguration contentConfiguration: Configuration
+      withConfiguration contentConfiguration: @escaping @MainActor (
+        VersatileCell, UICellConfigurationState
+      ) -> Configuration
     ) -> some UICollectionViewCell {
 
       if _collectionView.cellForIdentifiers.contains(reuseIdentifier) == false {
@@ -50,9 +57,16 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
         _collectionView.register(VersatileCell.self, forCellWithReuseIdentifier: reuseIdentifier)
       }
 
-      let cell = _collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
+      let cell =
+        _collectionView.dequeueReusableCell(
+          withReuseIdentifier: reuseIdentifier,
+          for: indexPath
+        ) as! VersatileCell
 
-      cell.contentConfiguration = contentConfiguration
+      cell.contentConfiguration = contentConfiguration(cell, cell.configurationState)
+      cell._updateConfigurationHandler = { cell, state in
+        cell.contentConfiguration = contentConfiguration(cell, state)
+      }
 
       return cell
 
@@ -60,18 +74,30 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
 
     public func cell(
       reuseIdentifier: String,
-      @ViewBuilder content: () -> some View
+      @ViewBuilder content: @escaping @MainActor (UICellConfigurationState) -> some View
     ) -> some UICollectionViewCell {
 
-      self.cell(reuseIdentifier: reuseIdentifier, withConfiguration: HostingConfiguration(content))
+      if #available(iOS 16, *) {
+        self.cell(
+          reuseIdentifier: reuseIdentifier,
+          withConfiguration: { cell, state in
+            UIHostingConfiguration { content(state).environment(\.versatileCell, cell) }.margins(
+              .all,
+              0
+            )
+          }
+        )
+      } else {
+        self.cell(
+          reuseIdentifier: reuseIdentifier,
+          withConfiguration: { cell, state in
+            HostingConfiguration { content(state).environment(\.versatileCell, cell) }
+          }
+        )
+      }
 
     }
 
-  }
-
-  public enum Action {
-    case didSelect(Data)
-    case batchFetch((@escaping @MainActor () async -> Void) -> Void)
   }
 
   public var scrollView: UIScrollView {
@@ -90,18 +116,8 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
 
   private var _cellProvider: ((CellProviderContext) -> UICollectionViewCell)?
 
-  private var _actionHandler: @MainActor (DynamicCompositionalLayoutView, Action) -> Void = {
-    _self,
-    action in
-    switch action {
-    case .didSelect:
-      break
-    case .batchFetch(let task):
-      task {
-
-      }
-    }
-  }
+  private var _selectionHandler: @MainActor (SelectionAction) -> Void = { _ in }
+  private var _incrementalContentLoader: @MainActor () async throws -> Void = {}
 
   private var dataSource: UICollectionViewDiffableDataSource<Section, Data>!
 
@@ -179,23 +195,6 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
     //    self.collectionView.isPrefetchingEnabled = false
     //    self.collectionView.prefetchDataSource = nil
 
-    contentPagingTrigger.onBatchFetch = { [weak self] in
-      guard let self = self else { return }
-
-      await withCheckedContinuation { c in
-        self._actionHandler(
-          self,
-          .batchFetch({ task in
-            Task {
-              await task()
-              c.resume()
-            }
-          })
-        )
-      }
-
-    }
-
     #if swift(>=5.7)
     if #available(iOS 16.0, *) {
       assert(self._collectionView.selfSizingInvalidation == .enabled)
@@ -236,7 +235,7 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
       let configuration = UICollectionViewCompositionalLayoutConfiguration()
       configuration.scrollDirection = scrollDirection
 
-      layout = _UICollectionViewCompositionalLayout.init(section: section)
+      layout = UICollectionViewCompositionalLayout.init(section: section)
 
     case .horizontal:
 
@@ -287,12 +286,31 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
   }
 
   public func setUp(
-    cellProvider: @escaping (CellProviderContext) -> UICollectionViewCell,
-    actionHandler: @escaping @MainActor (DynamicCompositionalLayoutView, Action) -> Void
+    cellProvider: @escaping (CellProviderContext) -> UICollectionViewCell
   ) {
-
-    _actionHandler = actionHandler
     _cellProvider = cellProvider
+  }
+
+  public func setIncrementalContentLoader(
+    _ loader: @escaping @MainActor () async throws -> Void
+  ) {
+    _incrementalContentLoader = loader
+
+    contentPagingTrigger.onBatchFetch = { [weak self] in
+      guard let self = self else { return }
+      do {
+        try await self._incrementalContentLoader()
+      } catch {
+
+      }
+    }
+
+  }
+
+  public func setSelectionHandler(
+    _ handler: @escaping @MainActor (SelectionAction) -> Void
+  ) {
+    _selectionHandler = handler
   }
 
   public func setContents(
@@ -373,7 +391,15 @@ public final class DynamicCompositionalLayoutView<Section: Hashable, Data: Hasha
     didSelectItemAt indexPath: IndexPath
   ) {
     let item = dataSource.itemIdentifier(for: indexPath)!
-    _actionHandler(self, .didSelect(item))
+    _selectionHandler(.didSelect(item))
+  }
+
+  public func collectionView(
+    _ collectionView: UICollectionView,
+    didDeselectItemAt indexPath: IndexPath
+  ) {
+    let item = dataSource.itemIdentifier(for: indexPath)!
+    _selectionHandler(.didDeselect(item))
   }
 
 }
@@ -398,11 +424,8 @@ public enum DynamicCompositionalLayoutSingleSection: Hashable {
 
 open class VersatileCell: UICollectionViewCell {
 
-//  open override var isHighlighted: Bool {
-//    didSet {
-//      alpha = isHighlighted ? 0.5 : 1
-//    }
-//  }
+  public var _updateConfigurationHandler:
+    @MainActor (_ cell: VersatileCell, _ state: UICellConfigurationState) -> Void = { _, _ in }
 
   public override init(
     frame: CGRect
@@ -425,6 +448,11 @@ open class VersatileCell: UICollectionViewCell {
       super.invalidateIntrinsicContentSize()
       self.layoutWithInvalidatingCollectionViewLayout(animated: true)
     }
+  }
+
+  open override func updateConfiguration(using state: UICellConfigurationState) {
+    super.updateConfiguration(using: state)
+    _updateConfigurationHandler(self, state)
   }
 
   public func setSwiftUIContent<Content: SwiftUI.View>(@ViewBuilder _ content: () -> Content) {
@@ -452,8 +480,12 @@ open class VersatileCell: UICollectionViewCell {
           .overrideInheritedDuration,
         ],
         animations: {
-          collectionView.collectionViewLayout.invalidateLayout()
-          collectionView.layoutIfNeeded()
+          guard let indexPath = collectionView.indexPath(for: self) else { return }
+          let c = UICollectionViewLayoutInvalidationContext.init()
+          c.invalidateItems(at: [indexPath])
+
+          collectionView.collectionViewLayout.invalidateLayout(with: c)
+//          collectionView.layoutIfNeeded()
         },
         completion: { (finish) in
 
@@ -647,5 +679,16 @@ final class ContentPagingTrigger {
     }
 
     currentTask = task
+  }
+}
+
+private enum CellContextKey: EnvironmentKey {
+  static var defaultValue: VersatileCell?
+}
+
+extension EnvironmentValues {
+  public var versatileCell: VersatileCell? {
+    get { self[CellContextKey.self] }
+    set { self[CellContextKey.self] = newValue }
   }
 }

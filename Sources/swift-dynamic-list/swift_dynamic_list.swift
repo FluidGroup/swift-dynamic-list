@@ -77,9 +77,6 @@ struct _CollectionView: UIViewRepresentable {
 
         return cell
 
-      },
-      actionHandler: { list, action in
-
       }
     )
     return view
@@ -87,19 +84,6 @@ struct _CollectionView: UIViewRepresentable {
 
   func updateUIView(_ uiView: View, context: Context) {
     uiView.setContents(views, inSection: 0)
-  }
-}
-
-class _UICollectionViewCompositionalLayout: UICollectionViewCompositionalLayout {
-
-  override func invalidateLayout() {
-    super.invalidateLayout()
-  }
-
-  override func layoutAttributesForItem(at indexPath: IndexPath)
-    -> UICollectionViewLayoutAttributes?
-  {
-    super.layoutAttributesForItem(at: indexPath)
   }
 }
 

@@ -3,10 +3,6 @@ import UIKit
 import swift_dynamic_list
 import os
 
-let debug = OSLog(subsystem: "D", category: .dynamicStackTracing)
-
-let log = Logger(subsystem: "Demo", category: "Default")
-
 struct BookUIKitBased: View, PreviewProvider {
   var body: some View {
     Content()
@@ -82,7 +78,7 @@ struct BookUIKitBased: View, PreviewProvider {
         let section = NSCollectionLayoutSection(group: group)
 
         // Create a compositional layout using the defined section
-        let layout = UICollectionViewCompositionalLayout(section: section)
+        let layout = _UICollectionViewCompositionalLayout(section: section)
 
         return layout
       }()
@@ -115,18 +111,19 @@ struct BookUIKitBased: View, PreviewProvider {
 
           switch context.data {
           case .a(let v):
-            return context.cell(reuseIdentifier: "A") {
-              HStack {
-                Text("\(v.name)")
-                  .redacted(reason: .placeholder)
-                Text("\(v.introduction)")
-                  .redacted(reason: .placeholder)
+            return context.cell(reuseIdentifier: "A") { state in
+              ComposableCell {
+                HStack {
+                  Text("\(state.isHighlighted.description)")
+                  Text("\(v.name)")
+                    .redacted(reason: .placeholder)
+                  Text("\(v.introduction)")
+                    .redacted(reason: .placeholder)
+                }
               }
-              .padding(16)
-              .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.green.opacity(0.2)))
             }
           case .b(let v):
-            return context.cell(reuseIdentifier: "B") {
+            return context.cell(reuseIdentifier: "B") { _ in
               Button {
 
               } label: {
@@ -142,41 +139,37 @@ struct BookUIKitBased: View, PreviewProvider {
                     .foregroundColor(Color.green)
                     .redacted(reason: .placeholder)
                 }
-//                ._onButtonGesture(pressing: { isPressing in
-//                  print("Pressing \(isPressing)")
-//                  
-//                }, perform: {
-//                  print("Pressed")
-//                  
-//                })
               }
 
             }
           }
 
-        },
-        actionHandler: { [weak self] list, action in
-          guard let self else { return }
-          switch action {
-          case .batchFetch(let work):
-            work {
-              self.currentData.append(
-                contentsOf: (0..<50).flatMap { i in
-                  [
-                    Block.a(.init(name: "\(i)")),
-                    Block.b(.init(name: "\(i)")),
-                  ]
-                }
-              )
-              list.setContents(self.currentData, inSection: 0)
-
-            }
-          case .didSelect(let item):
-            print("Selected \(String(describing: item))")
-            break
-          }
         }
       )
+
+      list.setIncrementalContentLoader { [weak list, weak self] in
+        guard let self else { return }
+        guard let list else { return }
+
+        self.currentData.append(
+          contentsOf: (0..<50).flatMap { i in
+            [
+              Block.a(.init(name: "\(i)")),
+              Block.b(.init(name: "\(i)")),
+            ]
+          }
+        )
+        list.setContents(self.currentData, inSection: 0)
+      }
+
+      list.setSelectionHandler { action in
+        switch action {
+        case .didSelect(let item):
+          print("Selected \(String(describing: item))")
+        case .didDeselect(let item):
+          print("Deselected \(String(describing: item))")
+        }
+      }
 
       list.setContents(currentData, inSection: 0)
     }
@@ -186,7 +179,57 @@ struct BookUIKitBased: View, PreviewProvider {
     }
 
   }
+
+  private struct ComposableCell<Content: View>: View {
+
+    @State var flag = false
+    @Environment(\.versatileCell) var cell
+
+    private let content: Content
+
+    init(@ViewBuilder content: @escaping () -> Content) {
+      self.content = content()
+    }
+
+    var body: some View {
+
+      VStack {
+
+        RoundedRectangle(cornerRadius: 8, style: .continuous)
+          .frame(height: flag ? 60 : 120)
+          .foregroundColor(Color.purple.opacity(0.2))
+          .overlay(Button("Toggle") {
+            flag.toggle()
+          })
+
+        content
+        .padding(16)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.green.opacity(0.2)))
+      }
+
+    }
+
+  }
 }
+
+private final class _UICollectionViewCompositionalLayout: UICollectionViewCompositionalLayout {
+
+  override func invalidateLayout() {
+    super.invalidateLayout()
+  }
+
+  override func layoutAttributesForItem(at indexPath: IndexPath)
+  -> UICollectionViewLayoutAttributes?
+  {
+    super.layoutAttributesForItem(at: indexPath)
+  }
+
+  override func invalidateLayout(with context: UICollectionViewLayoutInvalidationContext) {
+    super.invalidateLayout(with: context)
+  }
+}
+
+
 
 func random(count: Int) -> String {
 
