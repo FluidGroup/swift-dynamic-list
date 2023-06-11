@@ -62,6 +62,16 @@ public struct HostingConfiguration<Content: View>: UIContentConfiguration {
       hostingController.rootView = view
     }
 
+    override func didMoveToSuperview() {
+      if superview == nil {
+        hostingController.willMove(toParent: nil)
+        hostingController.removeFromParent()
+      } else {
+        parentViewController?.addChild(hostingController)
+        hostingController.didMove(toParent: parentViewController)
+      }
+    }
+
     @available(*, unavailable)
     required init?(coder: NSCoder) {
       fatalError("init(coder:) has not been implemented")
@@ -90,5 +100,11 @@ private final class HostingController<Content: View>: UIHostingController<Conten
     super.viewDidLayoutSubviews()
 
     //    onViewDidLayoutSubviews(self)
+  }
+}
+
+private extension UIResponder {
+  var parentViewController: UIViewController? {
+    return next as? UIViewController ?? next?.parentViewController
   }
 }

@@ -200,6 +200,9 @@ struct BookUIKitBased: View, PreviewProvider {
           .foregroundColor(Color.purple.opacity(0.2))
           .overlay(Button("Toggle") {
             flag.toggle()
+            DispatchQueue.main.async {
+              cell?.invalidateIntrinsicContentSize()
+            }
           })
 
         content
