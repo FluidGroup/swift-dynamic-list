@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-@testable import swift_dynamic_list
+@testable import DynamicList
 
 struct ContentView: View {
   var body: some View {

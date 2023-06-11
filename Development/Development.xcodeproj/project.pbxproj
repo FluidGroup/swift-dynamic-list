@@ -11,11 +11,11 @@
 		4B26A67D2A33239500B75FB4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B26A67C2A33239500B75FB4 /* ContentView.swift */; };
 		4B26A67F2A33239600B75FB4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4B26A67E2A33239600B75FB4 /* Assets.xcassets */; };
 		4B26A6822A33239600B75FB4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4B26A6812A33239600B75FB4 /* Preview Assets.xcassets */; };
-		4B26A68D2A3323E900B75FB4 /* swift-dynamic-list in Frameworks */ = {isa = PBXBuildFile; productRef = 4B26A68C2A3323E900B75FB4 /* swift-dynamic-list */; };
 		4B3722682A33C701005FF24A /* UIKitBased.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B3722672A33C701005FF24A /* UIKitBased.swift */; };
 		4B9981D32A33D7C100840751 /* RevealServer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B9981D12A33D51400840751 /* RevealServer.xcframework */; };
 		4B9981D42A33D7C100840751 /* RevealServer.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4B9981D12A33D51400840751 /* RevealServer.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4B9981D82A34F9B500840751 /* CompositionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4B9981D72A34F9B500840751 /* CompositionKit */; };
+		4BD542E92A362B40006261B9 /* DynamicList in Frameworks */ = {isa = PBXBuildFile; productRef = 4BD542E82A362B40006261B9 /* DynamicList */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -48,8 +48,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4B26A68D2A3323E900B75FB4 /* swift-dynamic-list in Frameworks */,
 				4B9981D82A34F9B500840751 /* CompositionKit in Frameworks */,
+				4BD542E92A362B40006261B9 /* DynamicList in Frameworks */,
 				4B9981D32A33D7C100840751 /* RevealServer.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -121,8 +121,8 @@
 			);
 			name = Development;
 			packageProductDependencies = (
-				4B26A68C2A3323E900B75FB4 /* swift-dynamic-list */,
 				4B9981D72A34F9B500840751 /* CompositionKit */,
+				4BD542E82A362B40006261B9 /* DynamicList */,
 			);
 			productName = Development;
 			productReference = 4B26A6772A33239500B75FB4 /* Development.app */;
@@ -399,14 +399,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4B26A68C2A3323E900B75FB4 /* swift-dynamic-list */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = "swift-dynamic-list";
-		};
 		4B9981D72A34F9B500840751 /* CompositionKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4B9981D62A34F9B500840751 /* XCRemoteSwiftPackageReference "CompositionKit" */;
 			productName = CompositionKit;
+		};
+		4BD542E82A362B40006261B9 /* DynamicList */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DynamicList;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

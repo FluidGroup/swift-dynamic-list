@@ -1,5 +1,5 @@
 import XCTest
-@testable import swift_dynamic_list
+@testable import DynamicList
 
 final class swift_dynamic_listTests: XCTestCase {
     func testExample() throws {

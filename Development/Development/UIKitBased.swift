@@ -1,6 +1,6 @@
 import SwiftUI
 import UIKit
-import swift_dynamic_list
+import DynamicList
 import os
 
 struct BookUIKitBased: View, PreviewProvider {
