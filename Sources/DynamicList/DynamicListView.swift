@@ -75,10 +75,10 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
     public func cell(
       reuseIdentifier: String,
       @ViewBuilder content: @escaping @MainActor (UICellConfigurationState) -> some View
-    ) -> some UICollectionViewCell {
+    ) -> UICollectionViewCell {
 
       if #available(iOS 16, *) {
-        self.cell(
+        return self.cell(
           reuseIdentifier: reuseIdentifier,
           withConfiguration: { cell, state in
             UIHostingConfiguration { content(state).environment(\.versatileCell, cell) }.margins(
@@ -88,7 +88,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
           }
         )
       } else {
-        self.cell(
+        return self.cell(
           reuseIdentifier: reuseIdentifier,
           withConfiguration: { cell, state in
             HostingConfiguration { content(state).environment(\.versatileCell, cell) }
