@@ -44,7 +44,7 @@ struct _CollectionView: UIViewRepresentable {
 
   }
 
-  typealias View = DynamicCompositionalLayoutView<Int, ViewBox>
+  typealias View = DynamicListView<Int, ViewBox>
 
   private let views: [ViewBox]
 
