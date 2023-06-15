@@ -50,7 +50,7 @@ struct BookUIKitBased: View, PreviewProvider {
 
   private final class ContainerView: UIView {
 
-    private let list = DynamicCompositionalLayoutView<Int, Block>(
+    private let list = DynamicListView<Int, Block>(
       layout: {
         // Define the size of each item in the grid
         let itemSize = NSCollectionLayoutSize(
