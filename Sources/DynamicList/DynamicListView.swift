@@ -44,22 +44,27 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
     }
 
     public func cell<Configuration: UIContentConfiguration>(
-      reuseIdentifier: String,
+      file: StaticString = #file,
+      line: UInt = #line,
+      column: UInt = #column,
+      reuseIdentifier: String? = nil,
       withConfiguration contentConfiguration: @escaping @MainActor (
         VersatileCell, UICellConfigurationState
       ) -> Configuration
     ) -> some UICollectionViewCell {
 
-      if _collectionView.cellForIdentifiers.contains(reuseIdentifier) == false {
+      let _reuseIdentifier = reuseIdentifier ?? "\(file):\(line):\(column)"
 
-        Log.debug(.generic, "Register Cell : \(reuseIdentifier)")
+      if _collectionView.cellForIdentifiers.contains(_reuseIdentifier) == false {
 
-        _collectionView.register(VersatileCell.self, forCellWithReuseIdentifier: reuseIdentifier)
+        Log.debug(.generic, "Register Cell : \(_reuseIdentifier)")
+
+        _collectionView.register(VersatileCell.self, forCellWithReuseIdentifier: _reuseIdentifier)
       }
 
       let cell =
         _collectionView.dequeueReusableCell(
-          withReuseIdentifier: reuseIdentifier,
+          withReuseIdentifier: _reuseIdentifier,
           for: indexPath
         ) as! VersatileCell
 
@@ -73,12 +78,18 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
     }
 
     public func cell(
-      reuseIdentifier: String,
+      file: StaticString = #file,
+      line: UInt = #line,
+      column: UInt = #column,
+      reuseIdentifier: String? = nil,
       @ViewBuilder content: @escaping @MainActor (UICellConfigurationState) -> some View
     ) -> UICollectionViewCell {
 
       if #available(iOS 16, *) {
         return self.cell(
+          file: file,
+          line: line,
+          column: column,
           reuseIdentifier: reuseIdentifier,
           withConfiguration: { cell, state in
             UIHostingConfiguration { content(state).environment(\.versatileCell, cell) }.margins(
@@ -89,6 +100,9 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
         )
       } else {
         return self.cell(
+          file: file,
+          line: line,
+          column: column,
           reuseIdentifier: reuseIdentifier,
           withConfiguration: { cell, state in
             HostingConfiguration { content(state).environment(\.versatileCell, cell) }
