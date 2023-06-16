@@ -10,8 +10,18 @@ import SwiftUI
 
 struct ContentView: View {
   var body: some View {
-//    BookVariadicView()
-    BookUIKitBased()
+    NavigationView {
+
+      List {
+        NavigationLink("Variadic") {
+          BookVariadicView()
+        }
+
+        NavigationLink("UIKit") {
+          BookUIKitBased()
+        }
+      }
+    }
   }
 }
 
