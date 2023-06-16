@@ -1,5 +1,7 @@
-import SwiftUI
+import AsyncMultiplexImage
+import AsyncMultiplexImage_Nuke
 import DynamicList
+import SwiftUI
 
 #if DEBUG
 struct BookVariadicView: View, PreviewProvider {
@@ -123,7 +125,10 @@ struct BookVariadicView: View, PreviewProvider {
 
   }
 
-  static let url = URL(string: "https://images.unsplash.com/photo-1686726754283-3cf793dec0e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=50&q=80")!
+  static let url = URL(
+    string:
+      "https://images.unsplash.com/photo-1686726754283-3cf793dec0e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+  )!
 
   struct ComplexCell: View {
 
@@ -138,14 +143,24 @@ struct BookVariadicView: View, PreviewProvider {
         Text(message.text)
 
         if #available(iOS 15, *) {
-          AsyncImage(url: BookVariadicView.url, content: { image in
-            image
-              .resizable()
-              .scaledToFill()
-          }, placeholder: {
-            Color.gray
-          })
-          .clipped()
+          AsyncMultiplexImage(
+            multiplexImage: .init(identifier: "1", urls: [BookVariadicView.url]),
+            downloader: AsyncMultiplexImageNukeDownloader(pipeline: .shared, debugDelay: 0),
+            content: { phase in
+              switch phase {
+              case .empty:
+                Color.gray
+              case .success(let image):
+                image
+                  .resizable()
+                  .scaledToFill()
+              case .failure:
+                Color.red
+              case .progress:
+                Color.blue
+              }
+            }
+          )
           .frame(width: 50, height: 50)
 
         }

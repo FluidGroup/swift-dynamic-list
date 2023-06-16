@@ -28,6 +28,24 @@
       }
     },
     {
+      "identity" : "nuke",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kean/Nuke.git",
+      "state" : {
+        "revision" : "f4d9b95788679d0654c032961f73e7e9c16ca6b4",
+        "version" : "12.1.0"
+      }
+    },
+    {
+      "identity" : "swiftui-async-multiplex-image",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FluidGroup/swiftui-async-multiplex-image",
+      "state" : {
+        "revision" : "21f295509631e4e471b93b95c30423314bade9a1",
+        "version" : "0.3.0"
+      }
+    },
+    {
       "identity" : "swiftui-gesture-velocity",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/FluidGroup/swiftui-gesture-velocity",
