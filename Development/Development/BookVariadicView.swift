@@ -142,28 +142,25 @@ struct BookVariadicView: View, PreviewProvider {
         Text(count.description)
         Text(message.text)
 
-        if #available(iOS 15, *) {
-          AsyncMultiplexImage(
-            multiplexImage: .init(identifier: "1", urls: [BookVariadicView.url]),
-            downloader: AsyncMultiplexImageNukeDownloader(pipeline: .shared, debugDelay: 0),
-            content: { phase in
-              switch phase {
-              case .empty:
-                Color.gray
-              case .success(let image):
-                image
-                  .resizable()
-                  .scaledToFill()
-              case .failure:
-                Color.red
-              case .progress:
-                Color.blue
-              }
+        AsyncMultiplexImage(
+          multiplexImage: .init(identifier: "1", urls: [BookVariadicView.url]),
+          downloader: AsyncMultiplexImageNukeDownloader(pipeline: .shared, debugDelay: 0),
+          content: { phase in
+            switch phase {
+            case .empty:
+              Color.gray
+            case .success(let image):
+              image
+                .resizable()
+                .scaledToFill()
+            case .failure:
+              Color.red
+            case .progress:
+              Color.blue
             }
-          )
-          .frame(width: 50, height: 50)
-
-        }
+          }
+        )
+        .frame(width: 50, height: 50)
 
       }
       .padding(16)
