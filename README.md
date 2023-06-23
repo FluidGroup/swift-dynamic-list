@@ -28,3 +28,34 @@ let cell = context.cell { state in
 }
 return cell
 ```
+
+setting how handles the events of selected or deselected
+
+```swift
+list.setSelectionHandler { action in
+  switch action {
+  case .didSelect(let item):
+    print("Selected \(String(describing: item))")
+  case .didDeselect(let item):
+    print("Deselected \(String(describing: item))")
+  }
+}
+```
+
+basic configuration is completed.  
+then set the content that displays.
+
+```swift
+list.setContents(contents, inSection: targetSection)
+```
+
+## Additional functions
+
+it supports a trigger event when the scrolling will be reaching the tail.  
+that will be good timing to trigger loading additional data.
+
+```swift
+list.setIncrementalContentLoader { 
+  await loadMoreData()
+}
+```
