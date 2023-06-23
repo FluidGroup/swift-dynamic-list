@@ -1,6 +1,11 @@
 # swift-dynamic-list
 Convenient component displaying elements in UICollectionView - Supports SwiftUI-based cell
 
+## Requirements
+
+- iOS 14 +
+- iPhone Platform
+
 ## Instructions
 
 > Works in UIKit
