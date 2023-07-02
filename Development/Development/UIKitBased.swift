@@ -3,6 +3,12 @@ import UIKit
 import DynamicList
 import os
 
+var globalCount: Int = 0
+func getGlobalCount() -> Int {
+  globalCount &+= 1
+  return globalCount
+}
+
 struct BookUIKitBased: View, PreviewProvider {
   var body: some View {
     Content()
@@ -35,13 +41,13 @@ struct BookUIKitBased: View, PreviewProvider {
     case b(B)
 
     struct A: Hashable {
-      let id: UUID = UUID()
+      let id: Int = getGlobalCount()
       let name: String
       let introduction: String = random(count: (2..<20).randomElement()!)
     }
 
     struct B: Hashable {
-      let id: UUID = UUID()
+      let id: Int = getGlobalCount()
       let name: String
       let introduction: String = random(count: (2..<20).randomElement()!)
     }
@@ -120,6 +126,9 @@ struct BookUIKitBased: View, PreviewProvider {
                   Text("\(v.introduction)")
                     .redacted(reason: .placeholder)
                 }
+              }
+              .onAppear {
+                print("OnAppear", v.id)
               }
             }
           case .b(let v):
