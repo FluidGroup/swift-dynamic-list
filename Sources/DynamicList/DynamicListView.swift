@@ -51,7 +51,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
       withConfiguration contentConfiguration: @escaping @MainActor (
         VersatileCell, UICellConfigurationState
       ) -> Configuration
-    ) -> some UICollectionViewCell {
+    ) -> VersatileCell {
 
       let _reuseIdentifier = reuseIdentifier ?? "\(file):\(line):\(column)"
 
@@ -83,7 +83,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
       column: UInt = #column,
       reuseIdentifier: String? = nil,
       @ViewBuilder content: @escaping @MainActor (UICellConfigurationState) -> some View
-    ) -> UICollectionViewCell {
+    ) -> VersatileCell {
 
       if #available(iOS 16, *) {
         return self.cell(
