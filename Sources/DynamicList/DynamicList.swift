@@ -12,6 +12,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
   private var selectionHandler: (@MainActor (SelectionAction) -> Void)? = nil
   private var incrementalContentLoader: (@MainActor () async throws -> Void)? = nil
+  private var onLoadHandler: (@MainActor (DynamicListView<Section, Item>) -> Void)? = nil
   private let snapshot: NSDiffableDataSourceSnapshot<Section, Item>
 
   public init(
@@ -42,6 +43,8 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
     listView.setContents(snapshot: snapshot)
 
+    onLoadHandler?(listView)
+
     return listView
   }
 
@@ -62,6 +65,14 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
   {
     var modified = self
     modified.incrementalContentLoader = loader
+    return modified
+  }
+
+  public func onLoad(_ handler: @escaping @MainActor (DynamicListView<Section, Item>) -> Void)
+    -> Self
+  {
+    var modified = self
+    modified.onLoadHandler = handler
     return modified
   }
 }
@@ -131,6 +142,9 @@ struct DynamicList_Previews: PreviewProvider {
     }
     .incrementalContentLoading {
 
+    }
+    .onLoad { view in
+      print(view)
     }
 
   }
