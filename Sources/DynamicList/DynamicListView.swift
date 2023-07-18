@@ -132,8 +132,10 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
 
   private var _selectionHandler: @MainActor (SelectionAction) -> Void = { _ in }
   private var _incrementalContentLoader: @MainActor () async throws -> Void = {}
+  private var _onScrollHandler: @MainActor (DynamicListScrollViewContext) -> Void = { _ in }
 
   private var dataSource: UICollectionViewDiffableDataSource<Section, Data>!
+  private var contentOffsetObservation: NSKeyValueObservation?
 
   private let contentPagingTrigger: ContentPagingTrigger
 
@@ -215,6 +217,9 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
     }
     #endif
 
+    self.contentOffsetObservation = collectionView.observe(\.contentOffset) { [weak self] view, change in
+      self?._onScrollHandler(.init(scrollView: view))
+    }
   }
 
   public convenience init(
@@ -384,6 +389,10 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
 
   public func setContentInset(_ insets: UIEdgeInsets) {
     _collectionView.contentInset = insets
+  }
+
+  public func setOnScroll(handler: @escaping @MainActor (DynamicListScrollViewContext) -> Void) {
+    self._onScrollHandler = handler
   }
 
   public func scroll(
