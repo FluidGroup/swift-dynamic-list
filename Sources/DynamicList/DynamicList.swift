@@ -12,16 +12,16 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
   private var selectionHandler: (@MainActor (SelectionAction) -> Void)? = nil
   private var incrementalContentLoader: (@MainActor () async throws -> Void)? = nil
-  private let data: [Section: [Item]]
+  private let snapshot: NSDiffableDataSourceSnapshot<Section, Item>
 
   public init(
-    data: [Section: [Item]],
+    snapshot: NSDiffableDataSourceSnapshot<Section, Item>,
     layout: @escaping @MainActor () -> UICollectionViewCompositionalLayout,
     cellProvider: @escaping (
       DynamicListView<Section, Item>.CellProviderContext
     ) -> UICollectionViewCell
   ) {
-    self.data = data
+    self.snapshot = snapshot
     self.layout = layout
     self.cellProvider = cellProvider
   }
@@ -40,17 +40,13 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
       listView.setIncrementalContentLoader(incrementalContentLoader)
     }
 
-    for element in data {
-      listView.setContents(element.value, inSection: element.key)
-    }
+    listView.setContents(snapshot: snapshot)
 
     return listView
   }
 
   public func updateUIView(_ listView: DynamicListView<Section, Item>, context: Context) {
-    for element in data {
-      listView.setContents(element.value, inSection: element.key)
-    }
+    listView.setContents(snapshot: snapshot)
   }
 
   public func selectionHandler(
@@ -74,7 +70,9 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 struct DynamicList_Previews: PreviewProvider {
 
   enum Section: CaseIterable {
-    case AAAAA
+    case a
+    case b
+    case c
   }
 
   static let layout: UICollectionViewCompositionalLayout = {
@@ -111,7 +109,14 @@ struct DynamicList_Previews: PreviewProvider {
 
   static var previews: some View {
     DynamicList<Section, String>(
-      data: [.AAAAA: ["a", "b", "c"]],
+      snapshot: {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, String>()
+        snapshot.appendSections([.a, .b, .c])
+        snapshot.appendItems(["A"], toSection: .a)
+        snapshot.appendItems(["B"], toSection: .b)
+        snapshot.appendItems(["C"], toSection: .c)
+        return snapshot
+      }(),
       layout: { Self.layout }
     ) { context in
       let cell = context.cell { _ in
