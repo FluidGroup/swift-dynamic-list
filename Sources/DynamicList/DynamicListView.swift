@@ -13,8 +13,8 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
 {
 
   public enum SelectionAction {
-    case didSelect(Data)
-    case didDeselect(Data)
+    case didSelect(Data, IndexPath)
+    case didDeselect(Data, IndexPath)
   }
 
   @MainActor
@@ -405,7 +405,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
     didSelectItemAt indexPath: IndexPath
   ) {
     let item = dataSource.itemIdentifier(for: indexPath)!
-    _selectionHandler(.didSelect(item))
+    _selectionHandler(.didSelect(item, indexPath))
   }
 
   public func collectionView(
@@ -413,7 +413,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
     didDeselectItemAt indexPath: IndexPath
   ) {
     let item = dataSource.itemIdentifier(for: indexPath)!
-    _selectionHandler(.didDeselect(item))
+    _selectionHandler(.didDeselect(item, indexPath))
   }
 
 }
