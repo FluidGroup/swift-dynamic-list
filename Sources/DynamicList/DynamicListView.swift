@@ -18,6 +18,20 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
   }
 
   @MainActor
+  public struct SupplementaryViewProviderContext {
+
+    public var collectionView: UICollectionView {
+      _collectionView
+    }
+
+    unowned let _collectionView: CollectionView
+
+    public let indexPath: IndexPath
+    public let kind: String
+
+  }
+
+  @MainActor
   public struct CellProviderContext {
 
     public var collectionView: UICollectionView {
@@ -124,8 +138,8 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
 
   private let _collectionView: CollectionView
 
-  public var layout: UICollectionViewCompositionalLayout {
-    _collectionView.collectionViewLayout as! UICollectionViewCompositionalLayout
+  public var layout: UICollectionViewLayout {
+    _collectionView.collectionViewLayout
   }
 
   private var _cellProvider: ((CellProviderContext) -> UICollectionViewCell)?
@@ -138,7 +152,8 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
   private let contentPagingTrigger: ContentPagingTrigger
 
   public init(
-    layout: UICollectionViewCompositionalLayout,
+    layout: UICollectionViewLayout,
+    scrollDirection: UICollectionView.ScrollDirection,
     contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .automatic
   ) {
 
@@ -146,7 +161,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
     self.contentPagingTrigger = .init(
       scrollView: _collectionView,
       trackingScrollDirection: {
-        switch layout.configuration.scrollDirection {
+        switch scrollDirection {
         case .vertical:
           return .down
         case .horizontal:
@@ -218,6 +233,17 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
   }
 
   public convenience init(
+    compositionalLayout: UICollectionViewCompositionalLayout,
+    contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .automatic
+  ) {
+    self.init(
+      layout: compositionalLayout,
+      scrollDirection: compositionalLayout.configuration.scrollDirection,
+      contentInsetAdjustmentBehavior: contentInsetAdjustmentBehavior
+    )
+  }
+
+  public convenience init(
     scrollDirection: UICollectionView.ScrollDirection,
     spacing: CGFloat = 0,
     contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .automatic
@@ -280,7 +306,11 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
       fatalError()
     }
 
-    self.init(layout: layout, contentInsetAdjustmentBehavior: contentInsetAdjustmentBehavior)
+    self.init(
+      layout: layout,
+      scrollDirection: layout.configuration.scrollDirection,
+      contentInsetAdjustmentBehavior: contentInsetAdjustmentBehavior
+    )
 
   }
 
@@ -303,6 +333,19 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
     cellProvider: @escaping (CellProviderContext) -> UICollectionViewCell
   ) {
     _cellProvider = cellProvider
+  }
+
+  public func supplementaryViewHandler(_ handler: @escaping @MainActor (SupplementaryViewProviderContext) -> UICollectionReusableView) {
+
+    dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+
+      let context = SupplementaryViewProviderContext(_collectionView: collectionView as! CollectionView, indexPath: indexPath, kind: kind)
+
+      let view = handler(context)
+
+      return view
+    }
+
   }
 
   public func setIncrementalContentLoader(

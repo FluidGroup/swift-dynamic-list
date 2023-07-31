@@ -17,8 +17,12 @@ struct ContentView: View {
           BookVariadicView()
         }
 
-        NavigationLink("UIKit") {
-          BookUIKitBased()
+        NavigationLink("UIKit Compositinal") {
+          BookUIKitBasedCompositional()
+        }
+
+        NavigationLink("UIKit Flow") {
+          BookUIKitBasedFlow()
         }
       }
     }
