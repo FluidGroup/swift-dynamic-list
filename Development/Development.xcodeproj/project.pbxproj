@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -45,7 +45,7 @@
 		4B26A68A2A3323D400B75FB4 /* swift-dynamic-list */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swift-dynamic-list"; path = ..; sourceTree = "<group>"; };
 		4B3722672A33C701005FF24A /* BookUIKitBasedCompositional.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookUIKitBasedCompositional.swift; sourceTree = "<group>"; };
 		4B910EBB2A77A2F50079D26D /* BookUIKitBasedFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookUIKitBasedFlow.swift; sourceTree = "<group>"; };
-		4B9981D12A33D51400840751 /* RevealServer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = RevealServer.xcframework; sourceTree = "<group>"; };
+		4B9981D12A33D51400840751 /* RevealServer.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:KBY3G4JPGC:Itty Bitty Apps Pty Ltd"; lastKnownFileType = wrapper.xcframework; path = RevealServer.xcframework; sourceTree = "<group>"; };
 		4BEAFA482A3CE3B100478C59 /* BookVariadicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookVariadicView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
