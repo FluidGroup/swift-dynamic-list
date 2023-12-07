@@ -6,7 +6,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
   public typealias SelectionAction = DynamicListView<Section, Item>.SelectionAction
   public typealias CellProviderContext = DynamicListView<Section, Item>.CellProviderContext
 
-  private let layout: @MainActor () -> UICollectionViewCompositionalLayout
+  private let layout: @MainActor () -> UICollectionViewLayout
 
   private let cellProvider: (CellProviderContext) -> UICollectionViewCell
 
@@ -15,21 +15,28 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
   private var onLoadHandler: (@MainActor (DynamicListView<Section, Item>) -> Void)? = nil
   private let snapshot: NSDiffableDataSourceSnapshot<Section, Item>
 
+  private let scrollDirection: UICollectionView.ScrollDirection
+  private let contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior
+
   public init(
     snapshot: NSDiffableDataSourceSnapshot<Section, Item>,
-    layout: @escaping @MainActor () -> UICollectionViewCompositionalLayout,
+    layout: @escaping @MainActor () -> UICollectionViewLayout,
+    scrollDirection: UICollectionView.ScrollDirection,
+    contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .automatic,
     cellProvider: @escaping (
       DynamicListView<Section, Item>.CellProviderContext
     ) -> UICollectionViewCell
   ) {
     self.snapshot = snapshot
     self.layout = layout
+    self.scrollDirection = scrollDirection
+    self.contentInsetAdjustmentBehavior = contentInsetAdjustmentBehavior
     self.cellProvider = cellProvider
   }
 
   public func makeUIView(context: Context) -> DynamicListView<Section, Item> {
 
-    let listView: DynamicListView<Section, Item> = .init(compositionalLayout: layout())
+    let listView: DynamicListView<Section, Item> = .init(layout: layout(), scrollDirection: scrollDirection, contentInsetAdjustmentBehavior: contentInsetAdjustmentBehavior)
 
     listView.setUp(cellProvider: cellProvider)
 
@@ -128,7 +135,8 @@ struct DynamicList_Previews: PreviewProvider {
         snapshot.appendItems(["C"], toSection: .c)
         return snapshot
       }(),
-      layout: { Self.layout }
+      layout: { Self.layout },
+      scrollDirection: .vertical
     ) { context in
       let cell = context.cell { _ in
         Text(context.data)

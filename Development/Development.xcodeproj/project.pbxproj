@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,8 +13,6 @@
 		4B26A6822A33239600B75FB4 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4B26A6812A33239600B75FB4 /* Preview Assets.xcassets */; };
 		4B3722682A33C701005FF24A /* BookUIKitBasedCompositional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B3722672A33C701005FF24A /* BookUIKitBasedCompositional.swift */; };
 		4B910EBC2A77A2F50079D26D /* BookUIKitBasedFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B910EBB2A77A2F50079D26D /* BookUIKitBasedFlow.swift */; };
-		4B9981D32A33D7C100840751 /* RevealServer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B9981D12A33D51400840751 /* RevealServer.xcframework */; };
-		4B9981D42A33D7C100840751 /* RevealServer.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4B9981D12A33D51400840751 /* RevealServer.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4B9981D82A34F9B500840751 /* CompositionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4B9981D72A34F9B500840751 /* CompositionKit */; };
 		4BD542E92A362B40006261B9 /* DynamicList in Frameworks */ = {isa = PBXBuildFile; productRef = 4BD542E82A362B40006261B9 /* DynamicList */; };
 		4BEAFA492A3CE3B100478C59 /* BookVariadicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BEAFA482A3CE3B100478C59 /* BookVariadicView.swift */; };
@@ -23,13 +21,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		4B9981D52A33D7C100840751 /* Embed Frameworks */ = {
+		4BFD751F2B21F37A0093C4AA /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				4B9981D42A33D7C100840751 /* RevealServer.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -45,7 +42,6 @@
 		4B26A68A2A3323D400B75FB4 /* swift-dynamic-list */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swift-dynamic-list"; path = ..; sourceTree = "<group>"; };
 		4B3722672A33C701005FF24A /* BookUIKitBasedCompositional.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookUIKitBasedCompositional.swift; sourceTree = "<group>"; };
 		4B910EBB2A77A2F50079D26D /* BookUIKitBasedFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookUIKitBasedFlow.swift; sourceTree = "<group>"; };
-		4B9981D12A33D51400840751 /* RevealServer.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:KBY3G4JPGC:Itty Bitty Apps Pty Ltd"; lastKnownFileType = wrapper.xcframework; path = RevealServer.xcframework; sourceTree = "<group>"; };
 		4BEAFA482A3CE3B100478C59 /* BookVariadicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookVariadicView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -58,7 +54,6 @@
 				4BEAFA4C2A3CE48800478C59 /* AsyncMultiplexImage in Frameworks */,
 				4B9981D82A34F9B500840751 /* CompositionKit in Frameworks */,
 				4BD542E92A362B40006261B9 /* DynamicList in Frameworks */,
-				4B9981D32A33D7C100840751 /* RevealServer.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,7 +63,6 @@
 		4B26A66E2A33239500B75FB4 = {
 			isa = PBXGroup;
 			children = (
-				4B9981D12A33D51400840751 /* RevealServer.xcframework */,
 				4B26A68A2A3323D400B75FB4 /* swift-dynamic-list */,
 				4B26A6792A33239500B75FB4 /* Development */,
 				4B26A6782A33239500B75FB4 /* Products */,
@@ -123,7 +117,7 @@
 				4B26A6732A33239500B75FB4 /* Sources */,
 				4B26A6742A33239500B75FB4 /* Frameworks */,
 				4B26A6752A33239500B75FB4 /* Resources */,
-				4B9981D52A33D7C100840751 /* Embed Frameworks */,
+				4BFD751F2B21F37A0093C4AA /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
