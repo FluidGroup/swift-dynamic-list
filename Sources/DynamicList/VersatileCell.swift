@@ -140,4 +140,40 @@ open class VersatileCell: UICollectionViewCell {
     return self
   }
 
+  open override func preferredLayoutAttributesFitting(
+    _ layoutAttributes: UICollectionViewLayoutAttributes
+  ) -> UICollectionViewLayoutAttributes {
+
+    guard
+      let collectionView = (superview as? UICollectionView),
+      let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout
+    else {
+      return super.preferredLayoutAttributesFitting(layoutAttributes)
+    }
+
+    let padding = flowLayout.sectionInset.left + flowLayout.sectionInset.right
+    let maxWidth = collectionView.bounds.width - padding
+
+    let targetSize = CGSize(
+      width: maxWidth,
+      height: UIView.layoutFittingCompressedSize.height
+    )
+
+    let before = contentHuggingPriority(for: .horizontal)
+    self.setContentHuggingPriority(.required, for: .horizontal)
+    defer {
+      self.setContentHuggingPriority(before, for: .horizontal)
+    }
+
+    let size = systemLayoutSizeFitting(
+      targetSize,
+      withHorizontalFittingPriority: .fittingSizeLevel,
+      verticalFittingPriority: .fittingSizeLevel
+    )
+
+    layoutAttributes.frame.size = size
+
+    return layoutAttributes
+
+  }
 }

@@ -3,13 +3,13 @@ import UIKit
 import DynamicList
 import os
 
-var globalCount: Int = 0
-func getGlobalCount() -> Int {
+fileprivate var globalCount: Int = 0
+fileprivate func getGlobalCount() -> Int {
   globalCount &+= 1
   return globalCount
 }
 
-struct BookUIKitBased: View, PreviewProvider {
+struct BookUIKitBasedCompositional: View, PreviewProvider {
   var body: some View {
     Content()
   }
@@ -31,7 +31,7 @@ struct BookUIKitBased: View, PreviewProvider {
       ContainerView()
     }
 
-    func updateUIView(_ uiView: BookUIKitBased.ContainerView, context: Context) {
+    func updateUIView(_ uiView: BookUIKitBasedCompositional.ContainerView, context: Context) {
 
     }
   }
@@ -57,7 +57,7 @@ struct BookUIKitBased: View, PreviewProvider {
   private final class ContainerView: UIView {
 
     private let list = DynamicListView<Int, Block>(
-      layout: {
+      compositionalLayout: {
         // Define the size of each item in the grid
         let itemSize = NSCollectionLayoutSize(
           widthDimension: .fractionalWidth(0.25),
@@ -83,8 +83,20 @@ struct BookUIKitBased: View, PreviewProvider {
         // Create a section using the defined group
         let section = NSCollectionLayoutSection(group: group)
 
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+//        configuration.boundarySupplementaryItems = [
+//          .init(
+//            layoutSize: .init(
+//              widthDimension: .fractionalWidth(1),
+//              heightDimension: .estimated(100)
+//            ),
+//            elementKind: "Header",
+//            alignment: .top
+//          ),
+//        ]
+
         // Create a compositional layout using the defined section
-        let layout = _UICollectionViewCompositionalLayout(section: section)
+        let layout = _UICollectionViewCompositionalLayout(section: section, configuration: configuration)
 
         return layout
       }()
@@ -241,9 +253,7 @@ private final class _UICollectionViewCompositionalLayout: UICollectionViewCompos
   }
 }
 
-
-
-func random(count: Int) -> String {
+fileprivate func random(count: Int) -> String {
 
   let loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
