@@ -151,28 +151,6 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
 
   private let contentPagingTrigger: ContentPagingTrigger
 
-  convenience public init(
-    sectionProvider: @escaping (Section, NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection,
-    contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .automatic
-  ) {
-    weak var weakSelf: DynamicListView?
-    self.init(
-      layout: UICollectionViewCompositionalLayout.init(
-        sectionProvider: { sectionIndex, environment in
-          guard let `self` = weakSelf else {
-            return nil
-          }
-          return sectionProvider(
-            self.snapshot().sectionIdentifiers[sectionIndex],
-            environment
-          )
-        }
-      ),
-      contentInsetAdjustmentBehavior: contentInsetAdjustmentBehavior
-    )
-    weakSelf = self
-  }
-
   public init(
     layout: UICollectionViewLayout,
     scrollDirection: UICollectionView.ScrollDirection,
