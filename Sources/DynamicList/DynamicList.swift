@@ -1,7 +1,14 @@
 import SwiftUI
 import UIKit
 
+public enum Selection<Data: Hashable> {
+  case single(Data)
+  case multiple(Set<Data>)
+}
+
 public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentable {
+
+  private var selection: Binding<Selection<Item>?>?
 
   public typealias SelectionAction = DynamicListView<Section, Item>.SelectionAction
   public typealias CellProviderContext = DynamicListView<Section, Item>.CellProviderContext
@@ -20,6 +27,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
   public init(
     snapshot: NSDiffableDataSourceSnapshot<Section, Item>,
+    selection: Binding<Selection<Item>?>? = nil,
     layout: @escaping @MainActor () -> UICollectionViewLayout,
     scrollDirection: UICollectionView.ScrollDirection,
     contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .automatic,
@@ -32,6 +40,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
     self.scrollDirection = scrollDirection
     self.contentInsetAdjustmentBehavior = contentInsetAdjustmentBehavior
     self.cellProvider = cellProvider
+    self.selection = selection
   }
 
   public func makeUIView(context: Context) -> DynamicListView<Section, Item> {
@@ -61,6 +70,25 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
   public func updateUIView(_ listView: DynamicListView<Section, Item>, context: Context) {
     listView.setContents(snapshot: snapshot)
+
+    if let selection {
+
+      switch selection.wrappedValue {
+      case .none:
+        // TODO: deselect all of selected items
+        break
+      case .single(let data):
+        listView.setAllowsMultipleSelection(false)
+        listView.select(data: data, animated: false, scrollPosition: [])
+      case .multiple(let dataSet):
+        // TODO: reset before selecting
+        listView.setAllowsMultipleSelection(true)
+        for data in dataSet {
+          listView.select(data: data, animated: false, scrollPosition: [])
+        }
+      }
+    }
+
   }
 
   public func selectionHandler(

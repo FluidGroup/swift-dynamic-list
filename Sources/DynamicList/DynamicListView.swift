@@ -335,6 +335,20 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
     _cellProvider = cellProvider
   }
 
+  public func setAllowsMultipleSelection(_ allows: Bool) {
+    _collectionView.allowsMultipleSelection = allows
+  }
+
+  public func select(data: Data, animated: Bool, scrollPosition: UICollectionView.ScrollPosition) {
+
+    guard let indexPath = dataSource.indexPath(for: data) else {
+      return
+    }
+
+    _collectionView.selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition)
+
+  }
+
   public func supplementaryViewHandler(_ handler: @escaping @MainActor (SupplementaryViewProviderContext) -> UICollectionReusableView) {
 
     dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
