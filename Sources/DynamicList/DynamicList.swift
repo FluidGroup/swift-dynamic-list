@@ -36,7 +36,11 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
   public func makeUIView(context: Context) -> DynamicListView<Section, Item> {
 
-    let listView: DynamicListView<Section, Item> = .init(layout: layout(), scrollDirection: scrollDirection, contentInsetAdjustmentBehavior: contentInsetAdjustmentBehavior)
+    let listView: DynamicListView<Section, Item> = .init(
+      layout: layout(),
+      scrollDirection: scrollDirection,
+      contentInsetAdjustmentBehavior: contentInsetAdjustmentBehavior
+    )
 
     listView.setUp(cellProvider: cellProvider)
 
