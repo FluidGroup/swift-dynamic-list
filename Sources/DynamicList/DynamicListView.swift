@@ -3,6 +3,8 @@ import UIKit
 
 public protocol CustomStateKey {
   associatedtype Value
+
+  static var defaultValue: Value { get }
 }
 
 public struct CellState {
@@ -15,9 +17,9 @@ public struct CellState {
 
   }
 
-  public subscript <T: CustomStateKey>(key: T.Type) -> T.Value? {
+  public subscript <T: CustomStateKey>(key: T.Type) -> T.Value {
     get {
-      stateMap[\T.self] as? T.Value
+      stateMap[\T.self] as? T.Value ?? T.defaultValue
     }
     set {
       stateMap[\T.self] = newValue

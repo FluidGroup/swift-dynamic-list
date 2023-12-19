@@ -211,12 +211,14 @@ struct DynamicList_Previews: PreviewProvider {
 }
 
 enum IsArchivedKey: CustomStateKey {
+  static var defaultValue: Bool { false }
+
   typealias Value = Bool
 }
 
 extension CellState {
   var isArchived: Bool {
-    get { self[IsArchivedKey.self] ?? false }
+    get { self[IsArchivedKey.self] }
     set { self[IsArchivedKey.self] = newValue }
   }
 }

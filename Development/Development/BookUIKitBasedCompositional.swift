@@ -12,11 +12,13 @@ fileprivate func getGlobalCount() -> Int {
 
 enum IsArchivedKey: CustomStateKey {
   typealias Value = Bool
+
+  static var defaultValue: Bool { false }
 }
 
 extension CellState {
   var isArchived: Bool {
-    get { self[IsArchivedKey.self] ?? false }
+    get { self[IsArchivedKey.self] }
     set { self[IsArchivedKey.self] = newValue }
   }
 }
