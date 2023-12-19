@@ -1,6 +1,31 @@
 import SwiftUI
 import UIKit
 
+public protocol CustomStateKey {
+  associatedtype Value
+}
+
+public struct CellState {
+
+  public static let empty = CellState()
+
+  private var stateMap: [AnyKeyPath : Any] = [:]
+
+  init() {
+
+  }
+
+  public subscript <T: CustomStateKey>(key: T.Type) -> T.Value? {
+    get {
+      stateMap[\T.self] as? T.Value
+    }
+    set {
+      stateMap[\T.self] = newValue
+    }
+  }
+
+}
+
 /// Preimplemented list view using UICollectionView and UICollectionViewCompositionalLayout.
 /// - Supports dynamic content update
 /// - Self cell sizing
@@ -42,6 +67,14 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
 
     public let data: Data
     public let indexPath: IndexPath
+    private let cellState: CellState
+
+    init(_collectionView: CollectionView, data: Data, indexPath: IndexPath, cellState: CellState) {
+      self._collectionView = _collectionView
+      self.data = data
+      self.indexPath = indexPath
+      self.cellState = cellState
+    }
 
     public func dequeueReusableCell<Cell: UICollectionViewCell>(_ cellType: Cell.Type) -> Cell {
       return _collectionView.dequeueReusableCell(
@@ -63,7 +96,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
       column: UInt = #column,
       reuseIdentifier: String? = nil,
       withConfiguration contentConfiguration: @escaping @MainActor (
-        VersatileCell, UICellConfigurationState
+        VersatileCell, UICellConfigurationState, CellState
       ) -> Configuration
     ) -> VersatileCell {
 
@@ -82,9 +115,9 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
           for: indexPath
         ) as! VersatileCell
 
-      cell.contentConfiguration = contentConfiguration(cell, cell.configurationState)
-      cell._updateConfigurationHandler = { cell, state in
-        cell.contentConfiguration = contentConfiguration(cell, state)
+      cell.contentConfiguration = contentConfiguration(cell, cell.configurationState, cellState)
+      cell._updateConfigurationHandler = { cell, state, customState in
+        cell.contentConfiguration = contentConfiguration(cell, state, customState)
       }
 
       return cell
@@ -96,7 +129,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
       line: UInt = #line,
       column: UInt = #column,
       reuseIdentifier: String? = nil,
-      @ViewBuilder content: @escaping @MainActor (UICellConfigurationState) -> some View
+      @ViewBuilder content: @escaping @MainActor (UICellConfigurationState, CellState) -> some View
     ) -> VersatileCell {
 
       if #available(iOS 16, *) {
@@ -105,8 +138,8 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
           line: line,
           column: column,
           reuseIdentifier: reuseIdentifier,
-          withConfiguration: { cell, state in
-            UIHostingConfiguration { content(state).environment(\.versatileCell, cell) }.margins(
+          withConfiguration: { cell, state, customState in
+            UIHostingConfiguration { content(state, customState).environment(\.versatileCell, cell) }.margins(
               .all,
               0
             )
@@ -118,8 +151,8 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
           line: line,
           column: column,
           reuseIdentifier: reuseIdentifier,
-          withConfiguration: { cell, state in
-            HostingConfiguration { content(state).environment(\.versatileCell, cell) }
+          withConfiguration: { cell, state, customState in
+            HostingConfiguration { content(state, customState).environment(\.versatileCell, cell) }
           }
         )
       }
@@ -148,6 +181,9 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
   private var _incrementalContentLoader: @MainActor () async throws -> Void = {}
 
   private var dataSource: UICollectionViewDiffableDataSource<Section, Data>!
+
+  // TODO: remove CellState following cell deletion.
+  private var stateMap: [Data : CellState] = [:]
 
   private let contentPagingTrigger: ContentPagingTrigger
 
@@ -201,13 +237,23 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
 
         let data = item
 
+        let state = stateMap[data] ?? .init()
+
         let context = CellProviderContext.init(
           _collectionView: collectionView as! CollectionView,
           data: data,
-          indexPath: indexPath
+          indexPath: indexPath,
+          cellState: state
         )
 
-        return provider(context)
+        let cell = provider(context)
+
+        if let versatileCell = cell as? VersatileCell {
+          versatileCell.customState = state
+          versatileCell.updateContent(using: state)
+        }
+
+        return cell
 
       }
     )
@@ -337,6 +383,58 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
 
   public func setAllowsMultipleSelection(_ allows: Bool) {
     _collectionView.allowsMultipleSelection = allows
+  }
+
+  public func resetState() {
+    stateMap.removeAll()
+
+    for cell in _collectionView.visibleCells {
+
+      if let versatileCell = cell as? VersatileCell {
+        versatileCell.customState = .empty
+        versatileCell.updateContent(using: .empty)
+      }
+
+    }
+  }
+
+  public func state<Key: CustomStateKey>(for data: Data, key: Key.Type) -> Key.Value? {
+    return stateMap[data]?[Key.self] as? Key.Value
+  }
+
+  func _setState(cellState: CellState, for data: Data) {
+    guard let indexPath = dataSource.indexPath(for: data) else {
+      return
+    }
+
+    stateMap[data] = cellState
+
+    guard let cell = _collectionView.cellForItem(at: indexPath) as? VersatileCell else {
+      return
+    }
+
+    cell.customState = cellState
+    cell.updateContent(using: cellState)
+  }
+
+  @available(iOS 15.0, *)
+  public func setState<Key: CustomStateKey>(_ value: Key.Value, key: Key.Type, for data: Data) {
+
+    guard let indexPath = dataSource.indexPath(for: data) else {
+      return
+    }
+
+    var cellState = stateMap[data, default: .empty]
+    cellState[Key.self] = value
+    stateMap[data] = cellState
+
+    guard let cell = _collectionView.cellForItem(at: indexPath) as? VersatileCell else {
+      return
+    }
+
+    cell.customState = cellState
+    cell.updateContent(using: cellState)
+
   }
 
   public func select(data: Data, animated: Bool, scrollPosition: UICollectionView.ScrollPosition) {

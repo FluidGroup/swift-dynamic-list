@@ -62,8 +62,9 @@ open class VersatileCell: UICollectionViewCell {
     }
   }
 
-  public var _updateConfigurationHandler:
-  @MainActor (_ cell: VersatileCell, _ state: UICellConfigurationState) -> Void = { _, _ in }
+  public internal(set) var customState: CellState = .init()
+
+  public var _updateConfigurationHandler: @MainActor (_ cell: VersatileCell, _ state: UICellConfigurationState, _ customState: CellState) -> Void = { _, _ , _ in }
 
   private var _highlightAnimation: any CellHighlightAnimation = .disabled
 
@@ -90,9 +91,18 @@ open class VersatileCell: UICollectionViewCell {
     }
   }
 
+  open override var configurationState: UICellConfigurationState {
+    let state = super.configurationState
+    return state
+  }
+
   open override func updateConfiguration(using state: UICellConfigurationState) {
     super.updateConfiguration(using: state)
-    _updateConfigurationHandler(self, state)
+    _updateConfigurationHandler(self, state, customState)
+  }
+
+  open func updateContent(using customState: CellState) {
+    _updateConfigurationHandler(self, configurationState, customState)
   }
 
   public func layoutWithInvalidatingCollectionViewLayout(animated: Bool) {

@@ -99,7 +99,7 @@ struct BookUIKitBasedFlow: View, PreviewProvider {
 
           switch context.data {
           case .a(let v):
-            return context.cell(reuseIdentifier: "A") { state in
+            return context.cell(reuseIdentifier: "A") { state, _ in
               ComposableCell {
                 HStack {
                   Text("\(state.isHighlighted.description)")
@@ -114,7 +114,7 @@ struct BookUIKitBasedFlow: View, PreviewProvider {
               }
             }
           case .b(let v):
-            return context.cell(reuseIdentifier: "B") { _ in
+            return context.cell(reuseIdentifier: "B") { _, _ in
               Button {
 
               } label: {
