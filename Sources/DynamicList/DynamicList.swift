@@ -75,6 +75,8 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
     listView.setContents(snapshot: snapshot)
 
+    listView.resetState()
+
     for (item, state) in cellStates {
       listView._setState(cellState: state, for: item)
     }
