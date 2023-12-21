@@ -2,11 +2,25 @@ import SwiftUI
 import UIKit
 import DynamicList
 import os
+import MondrianLayout
 
 fileprivate var globalCount: Int = 0
 fileprivate func getGlobalCount() -> Int {
   globalCount &+= 1
   return globalCount
+}
+
+enum IsArchivedKey: CustomStateKey {
+  typealias Value = Bool
+
+  static var defaultValue: Bool { false }
+}
+
+extension CellState {
+  var isArchived: Bool {
+    get { self[IsArchivedKey.self] }
+    set { self[IsArchivedKey.self] = newValue }
+  }
 }
 
 struct BookUIKitBasedCompositional: View, PreviewProvider {
@@ -114,22 +128,34 @@ struct BookUIKitBasedCompositional: View, PreviewProvider {
     init() {
       super.init(frame: .null)
 
-      addSubview(list)
-      list.translatesAutoresizingMaskIntoConstraints = false
+      let actionButton = UIButton(primaryAction: .init(title: "Action", handler: { [unowned self] _ in
 
-      NSLayoutConstraint.activate([
-        list.topAnchor.constraint(equalTo: topAnchor),
-        list.bottomAnchor.constraint(equalTo: bottomAnchor),
-        list.leadingAnchor.constraint(equalTo: leadingAnchor),
-        list.trailingAnchor.constraint(equalTo: trailingAnchor),
-      ])
+        let target = currentData[49]
+
+        if #available(iOS 15.0, *) {
+
+          let current = list.state(for: target, key: IsArchivedKey.self) ?? false
+
+          list.setState(!current, key: IsArchivedKey.self, for: target)
+        } else {
+          // Fallback on earlier versions
+        }
+
+      }))
+
+      Mondrian.buildSubviews(on: self) {
+        VStackBlock {
+          actionButton
+          list
+        }
+      }
 
       list.setUp(
         cellProvider: { context in
 
           switch context.data {
           case .a(let v):
-            return context.cell(reuseIdentifier: "A") { state in
+            return context.cell(reuseIdentifier: "A") { state, customState in
               ComposableCell {
                 HStack {
                   Text("\(state.isHighlighted.description)")
@@ -139,12 +165,13 @@ struct BookUIKitBasedCompositional: View, PreviewProvider {
                     .redacted(reason: .placeholder)
                 }
               }
+              .overlay(Color.red.opacity(0.8).opacity(customState.isArchived ? 1 : 0))
               .onAppear {
                 print("OnAppear", v.id)
               }
             }
           case .b(let v):
-            return context.cell(reuseIdentifier: "B") { _ in
+            return context.cell(reuseIdentifier: "B") { _, customState in
               Button {
 
               } label: {
@@ -161,6 +188,7 @@ struct BookUIKitBasedCompositional: View, PreviewProvider {
                     .redacted(reason: .placeholder)
                 }
               }
+              .overlay(Color.red.opacity(0.8).opacity(customState.isArchived ? 1 : 0))
 
             }
           }

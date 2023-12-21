@@ -24,10 +24,12 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
   private let scrollDirection: UICollectionView.ScrollDirection
   private let contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior
+  private let cellStates: [Item : CellState]
 
   public init(
     snapshot: NSDiffableDataSourceSnapshot<Section, Item>,
     selection: Binding<Selection<Item>?>? = nil,
+    cellStates: [Item : CellState] = [:],
     layout: @escaping @MainActor () -> UICollectionViewLayout,
     scrollDirection: UICollectionView.ScrollDirection,
     contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .automatic,
@@ -41,6 +43,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
     self.contentInsetAdjustmentBehavior = contentInsetAdjustmentBehavior
     self.cellProvider = cellProvider
     self.selection = selection
+    self.cellStates = cellStates
   }
 
   public func makeUIView(context: Context) -> DynamicListView<Section, Item> {
@@ -69,7 +72,14 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
   }
 
   public func updateUIView(_ listView: DynamicListView<Section, Item>, context: Context) {
+
     listView.setContents(snapshot: snapshot)
+
+    listView.resetState()
+
+    for (item, state) in cellStates {
+      listView._setState(cellState: state, for: item)
+    }
 
     if let selection {
 
@@ -167,18 +177,28 @@ struct DynamicList_Previews: PreviewProvider {
         snapshot.appendItems(["C"], toSection: .c)
         return snapshot
       }(),
+      cellStates: ["A" : {
+        var cellState = CellState()
+        cellState.isArchived = true
+        return cellState
+      }()],
       layout: { Self.layout },
       scrollDirection: .vertical
     ) { context in
-      let cell = context.cell { _ in
-        Text(context.data)
+      let cell = context.cell { _, customState in
+        HStack {
+          Text(context.data)
+          if customState.isArchived {
+            Text("archived")
+          }
+        }
       }
       .highlightAnimation(.shrink())
 
       return cell
     }
-    .selectionHandler { _ in
-
+    .selectionHandler { value in
+      print(value)
     }
     .incrementalContentLoading {
 
@@ -189,4 +209,19 @@ struct DynamicList_Previews: PreviewProvider {
 
   }
 }
+
+enum IsArchivedKey: CustomStateKey {
+  static var defaultValue: Bool { false }
+
+  typealias Value = Bool
+}
+
+extension CellState {
+  var isArchived: Bool {
+    get { self[IsArchivedKey.self] }
+    set { self[IsArchivedKey.self] = newValue }
+  }
+}
+
+
 #endif
