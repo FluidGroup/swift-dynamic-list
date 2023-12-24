@@ -24,12 +24,14 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
   private let scrollDirection: UICollectionView.ScrollDirection
   private let contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior
-  private let cellStates: [Item : CellState]
+  private let cellStates: [Item: CellState]
+
+  private var scrollingTarget: Item?
 
   public init(
     snapshot: NSDiffableDataSourceSnapshot<Section, Item>,
     selection: Binding<Selection<Item>?>? = nil,
-    cellStates: [Item : CellState] = [:],
+    cellStates: [Item: CellState] = [:],
     layout: @escaping @MainActor () -> UICollectionViewLayout,
     scrollDirection: UICollectionView.ScrollDirection,
     contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .automatic,
@@ -44,6 +46,12 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
     self.cellProvider = cellProvider
     self.selection = selection
     self.cellStates = cellStates
+  }
+
+  public func scrolling(to item: Item?) -> Self {
+    var modified = self
+    modified.scrollingTarget = item
+    return modified
   }
 
   public func makeUIView(context: Context) -> DynamicListView<Section, Item> {
@@ -65,6 +73,14 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
     }
 
     listView.setContents(snapshot: snapshot)
+
+    if let scrollingTarget {
+      listView.scroll(
+        to: scrollingTarget,
+        at: .centeredVertically,
+        animated: false
+      )
+    }
 
     onLoadHandler?(listView)
 
@@ -97,6 +113,14 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
           listView.select(data: data, animated: false, scrollPosition: [])
         }
       }
+    }
+
+    if let scrollingTarget {
+      listView.scroll(
+        to: scrollingTarget,
+        at: .centeredVertically,
+        animated: true
+      )
     }
 
   }
@@ -177,11 +201,13 @@ struct DynamicList_Previews: PreviewProvider {
         snapshot.appendItems(["C"], toSection: .c)
         return snapshot
       }(),
-      cellStates: ["A" : {
-        var cellState = CellState()
-        cellState.isArchived = true
-        return cellState
-      }()],
+      cellStates: [
+        "A": {
+          var cellState = CellState()
+          cellState.isArchived = true
+          return cellState
+        }()
+      ],
       layout: { Self.layout },
       scrollDirection: .vertical
     ) { context in
@@ -222,6 +248,5 @@ extension CellState {
     set { self[IsArchivedKey.self] = newValue }
   }
 }
-
 
 #endif
