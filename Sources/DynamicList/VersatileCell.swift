@@ -169,17 +169,20 @@ open class VersatileCell: UICollectionViewCell {
       height: UIView.layoutFittingCompressedSize.height
     )
 
-    let before = contentHuggingPriority(for: .horizontal)
-    self.setContentHuggingPriority(.required, for: .horizontal)
-    defer {
-      self.setContentHuggingPriority(before, for: .horizontal)
-    }
-
-    let size = systemLayoutSizeFitting(
+    var size = systemLayoutSizeFitting(
       targetSize,
       withHorizontalFittingPriority: .fittingSizeLevel,
       verticalFittingPriority: .fittingSizeLevel
     )
+
+    if size.width > targetSize.width {
+      // re-calculate size with max width.
+      size = systemLayoutSizeFitting(
+        targetSize,
+        withHorizontalFittingPriority: .required,
+        verticalFittingPriority: .fittingSizeLevel
+      )
+    }
 
     layoutAttributes.frame.size = size
 
