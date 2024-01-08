@@ -150,6 +150,10 @@ open class VersatileCell: UICollectionViewCell {
     return self
   }
 
+  open func customSizeFitting(size: CGSize) -> CGSize? {
+    return nil
+  }
+
   open override func preferredLayoutAttributesFitting(
     _ layoutAttributes: UICollectionViewLayoutAttributes
   ) -> UICollectionViewLayoutAttributes {
@@ -169,19 +173,31 @@ open class VersatileCell: UICollectionViewCell {
       height: UIView.layoutFittingCompressedSize.height
     )
 
-    let before = contentHuggingPriority(for: .horizontal)
-    self.setContentHuggingPriority(.required, for: .horizontal)
-    defer {
-      self.setContentHuggingPriority(before, for: .horizontal)
+    let cellSize: CGSize
+
+    if let customSize = customSizeFitting(size: targetSize) {
+      cellSize = customSize
+    } else {
+
+      var size = systemLayoutSizeFitting(
+        targetSize,
+        withHorizontalFittingPriority: .fittingSizeLevel,
+        verticalFittingPriority: .fittingSizeLevel
+      )
+
+      if size.width > targetSize.width {
+        // re-calculate size with max width.
+        size = systemLayoutSizeFitting(
+          targetSize,
+          withHorizontalFittingPriority: .required,
+          verticalFittingPriority: .fittingSizeLevel
+        )
+      }
+
+      cellSize = size
     }
 
-    let size = systemLayoutSizeFitting(
-      targetSize,
-      withHorizontalFittingPriority: .fittingSizeLevel,
-      verticalFittingPriority: .fittingSizeLevel
-    )
-
-    layoutAttributes.frame.size = size
+    layoutAttributes.frame.size = cellSize
 
     return layoutAttributes
 
