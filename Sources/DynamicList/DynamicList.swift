@@ -8,6 +8,25 @@ public enum Selection<Data: Hashable> {
 
 public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentable {
 
+  public struct ScrollTarget {
+    public let item: Item
+    public let position: UICollectionView.ScrollPosition
+    public let animated: Bool
+    public let skipsWhileTracking: Bool
+
+    public init(
+      item: Item,
+      position: UICollectionView.ScrollPosition = .centeredVertically,
+      skipsWhileTracking: Bool = false,
+      animated: Bool
+    ) {
+      self.item = item
+      self.position = position
+      self.animated = animated
+      self.skipsWhileTracking = skipsWhileTracking
+    }
+  }
+
   private var selection: Binding<Selection<Item>?>?
 
   public typealias SelectionAction = DynamicListView<Section, Item>.SelectionAction
@@ -26,7 +45,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
   private let contentInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior
   private let cellStates: [Item: CellState]
 
-  private var scrollingTarget: Item?
+  private var scrollingTarget: ScrollTarget?
 
   public init(
     snapshot: NSDiffableDataSourceSnapshot<Section, Item>,
@@ -48,7 +67,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
     self.cellStates = cellStates
   }
 
-  public func scrolling(to item: Item?) -> Self {
+  public func scrolling(to item: ScrollTarget?) -> Self {
     var modified = self
     modified.scrollingTarget = item
     return modified
@@ -75,10 +94,12 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
     listView.setContents(snapshot: snapshot)
 
     if let scrollingTarget {
+
       listView.scroll(
-        to: scrollingTarget,
-        at: .centeredVertically,
-        animated: false
+        to: scrollingTarget.item,
+        at: scrollingTarget.position,
+        skipsWhileTracking: scrollingTarget.skipsWhileTracking,
+        animated: scrollingTarget.animated
       )
     }
 
@@ -117,12 +138,12 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
     if let scrollingTarget {
       listView.scroll(
-        to: scrollingTarget,
-        at: .centeredVertically,
-        animated: true
+        to: scrollingTarget.item,
+        at: scrollingTarget.position,
+        skipsWhileTracking: scrollingTarget.skipsWhileTracking,
+        animated: scrollingTarget.animated
       )
     }
-
   }
 
   public func selectionHandler(
