@@ -546,14 +546,14 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
   public func scroll(
     to data: Data,
     at scrollPosition: UICollectionView.ScrollPosition,
-    skipsWhileTracking: Bool = false,
+    skipCondition: @escaping @MainActor (UIScrollView) -> Bool,
     animated: Bool
   ) {
     guard let indexPath = dataSource.indexPath(for: data) else {
       return
     }
 
-    if skipsWhileTracking == true, _collectionView.isTracking == true {
+    if skipCondition(_collectionView) {
       return
     }
 

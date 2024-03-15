@@ -12,18 +12,18 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
     public let item: Item
     public let position: UICollectionView.ScrollPosition
     public let animated: Bool
-    public let skipsWhileTracking: Bool
+    public let skipCondition: @MainActor (UIScrollView) -> Bool
 
     public init(
       item: Item,
       position: UICollectionView.ScrollPosition = .centeredVertically,
-      skipsWhileTracking: Bool = false,
+      skipCondition: @escaping @MainActor (UIScrollView) -> Bool,
       animated: Bool
     ) {
       self.item = item
       self.position = position
       self.animated = animated
-      self.skipsWhileTracking = skipsWhileTracking
+      self.skipCondition = skipCondition
     }
   }
 
@@ -98,7 +98,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
       listView.scroll(
         to: scrollingTarget.item,
         at: scrollingTarget.position,
-        skipsWhileTracking: scrollingTarget.skipsWhileTracking,
+        skipCondition: scrollingTarget.skipCondition,
         animated: scrollingTarget.animated
       )
     }
@@ -140,7 +140,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
       listView.scroll(
         to: scrollingTarget.item,
         at: scrollingTarget.position,
-        skipsWhileTracking: scrollingTarget.skipsWhileTracking,
+        skipCondition: scrollingTarget.skipCondition,
         animated: scrollingTarget.animated
       )
     }
