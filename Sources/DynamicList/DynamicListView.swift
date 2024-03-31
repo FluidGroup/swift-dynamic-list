@@ -1,12 +1,36 @@
 import SwiftUI
 import UIKit
 
+/**
+ A key using types that brings custom state into cell.
+
+ ```swift
+ enum IsArchivedKey: CustomStateKey {
+   typealias Value = Bool
+
+   static var defaultValue: Bool { false }
+ }
+ ```
+
+ ```swift
+ extension CellState {
+   var isArchived: Bool {
+     get { self[IsArchivedKey.self] }
+     set { self[IsArchivedKey.self] = newValue }
+   }
+ }
+ ```
+ */
 public protocol CustomStateKey {
   associatedtype Value
 
   static var defaultValue: Value { get }
 }
 
+/**
+ Additional cell state storage.
+ Refer `CustomStateKey` to use your own state for cell.
+ */
 public struct CellState {
 
   public static let empty = CellState()
