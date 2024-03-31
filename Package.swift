@@ -14,7 +14,6 @@ let package = Package(
     )
   ],
   dependencies: [
-    .package(url: "https://github.com/FluidGroup/swiftui-support", from: "0.4.1"),
   ],
   targets: [
     // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -22,7 +21,6 @@ let package = Package(
     .target(
       name: "DynamicList",
       dependencies: [
-        .product(name: "SwiftUISupport", package: "swiftui-support")
       ]
     ),
     .testTarget(
