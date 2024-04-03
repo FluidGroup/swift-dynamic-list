@@ -37,6 +37,8 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
   private let cellProvider: (CellProviderContext) -> UICollectionViewCell
 
   private var selectionHandler: (@MainActor (SelectionAction) -> Void)? = nil
+  private var scrollHandler: (@MainActor (DynamicListViewScrollAction) -> Void)? = nil
+
   private var incrementalContentLoader: (@MainActor () async throws -> Void)? = nil
   private var onLoadHandler: (@MainActor (DynamicListView<Section, Item>) -> Void)? = nil
   private let snapshot: NSDiffableDataSourceSnapshot<Section, Item>
@@ -83,14 +85,6 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
 
     listView.setUp(cellProvider: cellProvider)
 
-    if let selectionHandler {
-      listView.setSelectionHandler(selectionHandler)
-    }
-
-    if let incrementalContentLoader {
-      listView.setIncrementalContentLoader(incrementalContentLoader)
-    }
-
     listView.setContents(snapshot: snapshot)
 
     if let scrollingTarget {
@@ -136,6 +130,24 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
       }
     }
 
+    if let selectionHandler {
+      listView.setSelectionHandler(selectionHandler)
+    } else {
+      listView.setSelectionHandler({ _ in })
+    }
+
+    if let incrementalContentLoader {
+      listView.setIncrementalContentLoader(incrementalContentLoader)
+    } else {
+      listView.setIncrementalContentLoader { }
+    }
+
+    if let scrollHandler {
+      listView.setScrollHandler(scrollHandler)
+    } else {
+      listView.setScrollHandler({ _ in })
+    }
+
     if let scrollingTarget {
       listView.scroll(
         to: scrollingTarget.item,
@@ -146,29 +158,34 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
     }
   }
 
-  public func selectionHandler(
+  public consuming func selectionHandler(
     _ handler: @escaping @MainActor (DynamicListView<Section, Item>.SelectionAction) -> Void
   ) -> Self {
-    var modified = self
-    modified.selectionHandler = handler
-    return modified
+    self.selectionHandler = handler
+    return self
   }
 
-  public func incrementalContentLoading(_ loader: @escaping @MainActor () async throws -> Void)
-    -> Self
-  {
-    var modified = self
-    modified.incrementalContentLoader = loader
-    return modified
+  public consuming func scrollHandler(
+    _ handler: @escaping @MainActor (DynamicListViewScrollAction) -> Void
+  ) -> Self {
+    self.scrollHandler = handler
+    return self
   }
 
-  public func onLoad(_ handler: @escaping @MainActor (DynamicListView<Section, Item>) -> Void)
+  public consuming func incrementalContentLoading(_ loader: @escaping @MainActor () async throws -> Void)
     -> Self
   {
-    var modified = self
-    modified.onLoadHandler = handler
-    return modified
+    incrementalContentLoader = loader
+    return self
   }
+
+  public consuming func onLoad(_ handler: @escaping @MainActor (DynamicListView<Section, Item>) -> Void)
+    -> Self
+  {
+    onLoadHandler = handler
+    return self
+  }
+
 }
 
 #if DEBUG
