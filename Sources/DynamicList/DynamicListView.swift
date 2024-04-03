@@ -28,6 +28,10 @@ public struct CellState {
 
 }
 
+public enum DynamicListViewScrollAction {
+  case didScroll
+}
+
 /// Preimplemented list view using UICollectionView and UICollectionViewCompositionalLayout.
 /// - Supports dynamic content update
 /// - Self cell sizing
@@ -36,13 +40,14 @@ public struct CellState {
 /// - TODO: Currently supported only vertical scrolling.
 @available(iOS 13, *)
 public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
-  UICollectionViewDelegate
+  UICollectionViewDelegate, UIScrollViewDelegate
 {
 
   public enum SelectionAction {
     case didSelect(Data, IndexPath)
     case didDeselect(Data, IndexPath)
   }
+
 
   @MainActor
   public struct SupplementaryViewProviderContext {
@@ -180,6 +185,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
   private var _cellProvider: ((CellProviderContext) -> UICollectionViewCell)?
 
   private var _selectionHandler: @MainActor (SelectionAction) -> Void = { _ in }
+  private var _scrollHandler: @MainActor (DynamicListViewScrollAction) -> Void = { _ in }
   private var _incrementalContentLoader: @MainActor () async throws -> Void = {}
 
   private var dataSource: UICollectionViewDiffableDataSource<Section, Data>!
@@ -478,6 +484,12 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
 
   }
 
+  public func setScrollHandler(
+    _ handler: @escaping @MainActor (DynamicListViewScrollAction) -> Void
+  ) {
+    _scrollHandler = handler
+  }
+
   public func setSelectionHandler(
     _ handler: @escaping @MainActor (SelectionAction) -> Void
   ) {
@@ -576,6 +588,12 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
   ) {
     let item = dataSource.itemIdentifier(for: indexPath)!
     _selectionHandler(.didDeselect(item, indexPath))
+  }
+
+  // MARK: - UIScrollViewDelegate
+
+  public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    _scrollHandler(.didScroll)
   }
 
 }
