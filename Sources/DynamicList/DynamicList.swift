@@ -37,7 +37,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
   private let cellProvider: (CellProviderContext) -> UICollectionViewCell
 
   private var selectionHandler: (@MainActor (SelectionAction) -> Void)? = nil
-  private var scrollHandler: (@MainActor (DynamicListViewScrollAction) -> Void)? = nil
+  private var scrollHandler: (@MainActor (UIScrollView, DynamicListViewScrollAction) -> Void)? = nil
 
   private var incrementalContentLoader: (@MainActor () async throws -> Void)? = nil
   private var onLoadHandler: (@MainActor (DynamicListView<Section, Item>) -> Void)? = nil
@@ -145,7 +145,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
     if let scrollHandler {
       listView.setScrollHandler(scrollHandler)
     } else {
-      listView.setScrollHandler({ _ in })
+      listView.setScrollHandler({ _, _ in })
     }
 
     if let scrollingTarget {
@@ -166,7 +166,7 @@ public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentabl
   }
 
   public consuming func scrollHandler(
-    _ handler: @escaping @MainActor (DynamicListViewScrollAction) -> Void
+    _ handler: @escaping @MainActor (UIScrollView, DynamicListViewScrollAction) -> Void
   ) -> Self {
     self.scrollHandler = handler
     return self

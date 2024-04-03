@@ -209,7 +209,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
   private var _cellProvider: ((CellProviderContext) -> UICollectionViewCell)?
 
   private var _selectionHandler: @MainActor (SelectionAction) -> Void = { _ in }
-  private var _scrollHandler: @MainActor (DynamicListViewScrollAction) -> Void = { _ in }
+  private var _scrollHandler: @MainActor (UIScrollView, DynamicListViewScrollAction) -> Void = { _, _ in }
   private var _incrementalContentLoader: @MainActor () async throws -> Void = {}
 
   private var dataSource: UICollectionViewDiffableDataSource<Section, Data>!
@@ -509,7 +509,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
   }
 
   public func setScrollHandler(
-    _ handler: @escaping @MainActor (DynamicListViewScrollAction) -> Void
+    _ handler: @escaping @MainActor (UIScrollView, DynamicListViewScrollAction) -> Void
   ) {
     _scrollHandler = handler
   }
@@ -617,7 +617,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
   // MARK: - UIScrollViewDelegate
 
   public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    _scrollHandler(.didScroll)
+    _scrollHandler(collectionView, .didScroll)
   }
 
 }
