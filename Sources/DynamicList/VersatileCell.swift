@@ -71,7 +71,7 @@ open class VersatileCell: UICollectionViewCell {
   private var _highlightAnimation: any CellHighlightAnimation = .disabled
 
   /// In prepareForReuse this is going to be a new instance.
-  public private(set) var reusableCancellables: Set<AnyCancellable> = .init()
+  public var reusableCancellables: Set<AnyCancellable> = .init()
 
   public override init(
     frame: CGRect
