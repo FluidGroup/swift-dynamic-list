@@ -53,6 +53,8 @@ extension CellHighlightAnimation where Self == DisabledCellHighlightAnimation {
   }
 }
 
+import Combine
+
 open class VersatileCell: UICollectionViewCell {
 
   open override var isHighlighted: Bool {
@@ -67,6 +69,9 @@ open class VersatileCell: UICollectionViewCell {
   public var _updateConfigurationHandler: @MainActor (_ cell: VersatileCell, _ state: UICellConfigurationState, _ customState: CellState) -> Void = { _, _ , _ in }
 
   private var _highlightAnimation: any CellHighlightAnimation = .disabled
+
+  /// In prepareForReuse this is going to be a new instance.
+  public private(set) var reusableCancellables: Set<AnyCancellable> = .init()
 
   public override init(
     frame: CGRect
@@ -89,6 +94,12 @@ open class VersatileCell: UICollectionViewCell {
       super.invalidateIntrinsicContentSize()
       self.layoutWithInvalidatingCollectionViewLayout(animated: true)
     }
+  }
+
+  open override func prepareForReuse() {
+    super.prepareForReuse()
+
+    reusableCancellables = .init()
   }
 
   open override var configurationState: UICellConfigurationState {
