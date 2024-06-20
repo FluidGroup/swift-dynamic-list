@@ -1,9 +1,9 @@
 
 import UIKit
 
-public enum DiffableDataSourceError: Error {
-  case duplicatedSectionIdentifiers(Set<AnyHashable>)
-  case duplicatedItemIdentifiers(Set<AnyHashable>)
+public enum DiffableDataSourceError: Error, Sendable {
+  case duplicatedSectionIdentifiers(debugDescription: String)
+  case duplicatedItemIdentifiers(debugDescription: String)
 }
 
 extension NSDiffableDataSourceSnapshot {
@@ -17,7 +17,7 @@ extension NSDiffableDataSourceSnapshot {
     for section in sections {
       let (inserted, _) = sectionSet.insert(section)
       guard inserted else {
-        throw DiffableDataSourceError.duplicatedSectionIdentifiers([section])
+        throw DiffableDataSourceError.duplicatedSectionIdentifiers(debugDescription: String(describing: [section]))
       }
     }
 
@@ -28,7 +28,7 @@ extension NSDiffableDataSourceSnapshot {
     if set.isEmpty {
       appendSections(sections)
     } else {
-      throw DiffableDataSourceError.duplicatedSectionIdentifiers(set)
+      throw DiffableDataSourceError.duplicatedSectionIdentifiers(debugDescription: String(describing: set))
     }
 
   }
@@ -43,7 +43,7 @@ extension NSDiffableDataSourceSnapshot {
     for item in items {
       let (inserted, _) = itemSet.insert(item)
       guard inserted else {
-        throw DiffableDataSourceError.duplicatedItemIdentifiers([item])
+        throw DiffableDataSourceError.duplicatedItemIdentifiers(debugDescription: String(describing: [item]))
       }
     }
 
@@ -53,7 +53,7 @@ extension NSDiffableDataSourceSnapshot {
     if set.isEmpty {
       appendItems(items, toSection: sectionIdentifier)
     } else {
-      throw DiffableDataSourceError.duplicatedItemIdentifiers(set)
+      throw DiffableDataSourceError.duplicatedItemIdentifiers(debugDescription: String(describing: set))
     }
 
   }

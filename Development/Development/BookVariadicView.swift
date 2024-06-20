@@ -10,13 +10,6 @@ struct BookVariadicView: View, PreviewProvider {
     List {
 
       NavigationLink {
-        BackedContent()
-          .navigationTitle("Backed")
-      } label: {
-        Text("Backed")
-      }
-
-      NavigationLink {
         NativeContent()
           .navigationTitle("Native")
       } label: {
@@ -30,13 +23,6 @@ struct BookVariadicView: View, PreviewProvider {
   static var previews: some View {
     NavigationView {
       List {
-
-        NavigationLink {
-          BackedContent()
-            .navigationTitle("Backed")
-        } label: {
-          Text("Backed")
-        }
 
         NavigationLink {
           NativeContent()
@@ -67,62 +53,6 @@ struct BookVariadicView: View, PreviewProvider {
         }
       }
     }
-  }
-
-  private struct BackedContent: View {
-
-    @State var items: [Message] = MockData.randomMessages(count: 2000)
-
-    var body: some View {
-      VStack {
-        CustomList {
-          ForEach(
-            items,
-            content: {
-              ComplexCell(message: $0)
-            }
-          )
-        }
-      }
-    }
-
-    struct Cell1: View {
-
-      @State var flag = false
-
-      var body: some View {
-        VStack {
-          HStack {
-            Text("Hello")
-            Toggle("Flag", isOn: $flag)
-          }
-          Rectangle()
-            .frame(height: flag ? 10 : 50)
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 30)
-      }
-    }
-
-    struct Cell2: View {
-
-      @State var flag = false
-
-      var body: some View {
-        VStack {
-          HStack {
-            Text("Hello")
-            Toggle("Flag", isOn: $flag)
-          }
-          Rectangle()
-            .fill(Color.red)
-            .frame(height: flag ? 10 : 50)
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 30)
-      }
-    }
-
   }
 
   static let url = URL(

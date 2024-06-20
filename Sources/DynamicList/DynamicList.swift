@@ -1,12 +1,11 @@
 import SwiftUI
-import UIKit
 
 public enum Selection<Data: Hashable> {
   case single(Data)
   case multiple(Set<Data>)
 }
 
-public struct DynamicList<Section: Hashable, Item: Hashable>: UIViewRepresentable {
+public struct DynamicList<Section: Hashable & Sendable, Item: Hashable & Sendable>: UIViewRepresentable {
 
   public struct ScrollTarget {
     public let item: Item

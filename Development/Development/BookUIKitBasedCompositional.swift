@@ -4,7 +4,9 @@ import DynamicList
 import os
 import MondrianLayout
 
-fileprivate var globalCount: Int = 0
+
+nonisolated(unsafe) fileprivate var globalCount: Int = 0
+
 fileprivate func getGlobalCount() -> Int {
   globalCount &+= 1
   return globalCount
