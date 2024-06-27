@@ -287,3 +287,7 @@ extension CellState {
 }
 
 #endif
+
+#Preview {
+  Text("Hey")
+}
