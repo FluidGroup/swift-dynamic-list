@@ -11,6 +11,10 @@ let package = Package(
     .library(
       name: "DynamicList",
       targets: ["DynamicList"]
+    ),
+    .library(
+      name: "VersatileList",
+      targets: ["VersatileList"]
     )
   ],
   dependencies: [
@@ -20,6 +24,11 @@ let package = Package(
     // Targets can depend on other targets in this package and products from dependencies.
     .target(
       name: "DynamicList",
+      dependencies: [
+      ]
+    ),
+    .target(
+      name: "VersatileList",
       dependencies: [
       ]
     ),
