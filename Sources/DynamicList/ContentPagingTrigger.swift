@@ -60,14 +60,14 @@ final class ContentPagingTrigger {
     self.leadingScreensForBatching = leadingScreensForBatching
     self.trackingScrollDirection = trackingScrollDirection
 
-    offsetObservation = scrollView.observe(\.contentOffset, options: [.initial, .new]) {
-      @MainActor(unsafe) [weak self] scrollView, _ in
+    offsetObservation = scrollView.observe(\.contentOffset, options: [.initial, .new]) { [weak self] scrollView, _ in      
       guard let `self` = self else { return }
-      self.didScroll(scrollView: scrollView)
+      MainActor.assumeIsolated {
+        self.didScroll(scrollView: scrollView)
+      }
     }
 
-    contentSizeObservation = scrollView.observe(\.contentSize, options: [.initial, .new]) {
-      @MainActor(unsafe) scrollView, _ in
+    contentSizeObservation = scrollView.observe(\.contentSize, options: [.initial, .new]) { scrollView, _ in
       //      print(scrollView.contentSize)
     }
   }

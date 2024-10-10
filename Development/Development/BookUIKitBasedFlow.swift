@@ -4,7 +4,7 @@ import DynamicList
 import os
 
 
-fileprivate var globalCount: Int = 0
+nonisolated(unsafe) fileprivate var globalCount: Int = 0
 fileprivate func getGlobalCount() -> Int {
   globalCount &+= 1
   return globalCount
@@ -101,6 +101,7 @@ struct BookUIKitBasedFlow: View, PreviewProvider {
           case .a(let v):
             return context.cell(reuseIdentifier: "A") { state, _ in
               ComposableCell {
+                TextField("Hello", text: .constant("Hoge"))
                 HStack {
                   Text("\(state.isHighlighted.description)")
                   Text("\(v.name)")

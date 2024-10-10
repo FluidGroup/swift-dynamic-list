@@ -33,7 +33,9 @@ public protocol CustomStateKey {
  */
 public struct CellState {
 
-  public static let empty = CellState()
+  public static var empty: CellState {
+    .init()
+  }
 
   private var stateMap: [AnyKeyPath : Any] = [:]
 
@@ -63,7 +65,7 @@ public enum DynamicListViewScrollAction {
 ///
 /// - TODO: Currently supported only vertical scrolling.
 @available(iOS 13, *)
-public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
+public final class DynamicListView<Section: Hashable & Sendable, Data: Hashable & Sendable>: UIView,
   UICollectionViewDelegate, UIScrollViewDelegate
 {
 
@@ -135,7 +137,7 @@ public final class DynamicListView<Section: Hashable, Data: Hashable>: UIView,
 
       if _collectionView.cellForIdentifiers.contains(_reuseIdentifier) == false {
 
-        Log.debug(.generic, "Register Cell : \(_reuseIdentifier)")
+        Log.generic.debug("Register Cell : \(_reuseIdentifier)")
 
         _collectionView.register(VersatileCell.self, forCellWithReuseIdentifier: _reuseIdentifier)
       }
@@ -636,12 +638,12 @@ internal final class CollectionView: UICollectionView {
 public typealias DynamicCompositionalLayoutSingleSectionView<Data: Hashable> =
   DynamicListView<DynamicCompositionalLayoutSingleSection, Data>
 
-public enum DynamicCompositionalLayoutSingleSection: Hashable {
+public enum DynamicCompositionalLayoutSingleSection: Hashable, Sendable {
   case main
 }
 
 private enum CellContextKey: EnvironmentKey {
-  static var defaultValue: VersatileCell?
+  static var defaultValue: VersatileCell? { nil }
 }
 
 extension EnvironmentValues {
