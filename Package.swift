@@ -13,8 +13,8 @@ let package = Package(
       targets: ["DynamicList"]
     ),
     .library(
-      name: "VersatileList",
-      targets: ["VersatileList"]
+      name: "CollectionView",
+      targets: ["CollectionView"]
     )
   ],
   dependencies: [
@@ -28,7 +28,7 @@ let package = Package(
       ]
     ),
     .target(
-      name: "VersatileList",
+      name: "CollectionView",
       dependencies: [
       ]
     ),
