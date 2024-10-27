@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// https://movingparts.io/variadic-views-in-swiftui
-private struct VariadicViewReader<ReadingContent: View, Content: View>: View {
+struct VariadicViewReader<ReadingContent: View, Content: View>: View {
 
   let readingContent: ReadingContent
   let content: (_VariadicView_Children.Element) -> Content

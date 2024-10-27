@@ -1,24 +1,97 @@
 import IndexedCollection
 import SwiftUI
 
-public enum VersatileListDirection {
+public enum CollectionViewListDirection {
   case vertical
   case horizontal
 }
 
-public enum CollectionViewLayout {
 
-  case list
-  case grid
 
-  public struct List<Separator: View> {
+public protocol CollectionViewLayoutType: ViewModifier {
+  
+}
+
+public enum CollectionViewLayouts {
+  
+  public struct PlatformList: CollectionViewLayoutType {
     
+    public func body(content: Content) -> some View {
+      SwiftUI.List {
+        content
+      }
+    }
   }
-
-  public struct Grid {
-
+  
+  public struct List<Separator: View>: CollectionViewLayoutType {
+        
+    public let direction: CollectionViewListDirection
+    
+    public init(direction: CollectionViewListDirection) {
+      self.direction = direction
+    }
+           
+    public func body(content: Content) -> some View {
+      switch direction {
+      case .vertical:
+        
+        ScrollView(.vertical) {
+          LazyVStack {
+            VariadicViewReader(readingContent: content) { child in
+              child
+            }
+          }
+        }
+        
+      case .horizontal:
+        
+        ScrollView(.horizontal) {
+          LazyHStack {
+            VariadicViewReader(readingContent: content) { child in
+              child
+            }
+          }
+        }
+        
+      }
+    }
+       
   }
+  
+  public struct Grid: CollectionViewLayoutType {
+    
+    public func body(content: Content) -> some View {
+      
+    }
+  }
+  
+}
 
+extension CollectionViewLayoutType where Self == CollectionViewLayouts.List<EmptyView> {
+  
+  public static var list: Self {
+    CollectionViewLayouts.List(direction: .vertical)
+  }
+  
+}
+
+extension CollectionViewLayoutType {
+  
+  public static func list<Separator: View>(
+    @ViewBuilder separator: () -> Separator
+  ) -> Self where Self == CollectionViewLayouts.List<Separator> {
+    .init(direction: .vertical)
+  }
+  
+}
+
+
+extension CollectionViewLayoutType where Self == CollectionViewLayouts.Grid {
+  
+  public static var grid: Self {
+    CollectionViewLayouts.Grid()
+  }
+  
 }
 
 public enum SelectionMode {
@@ -32,80 +105,79 @@ public enum SelectionMode {
 public struct CollectionView<
   Data: RandomAccessCollection,
   Cell: View,
-  Separator: View
+  Layout: CollectionViewLayoutType
 >: View where Data.Element: Identifiable {
-
-  public let direction: VersatileListDirection
-
-  private let cell: (Data.Element) -> Cell
-  private let separator: () -> Separator
+  
+  public let direction: CollectionViewListDirection
+  
+  private let cell: (Data.Index, Data.Element) -> Cell
+  private let layout: Layout
   private let items: Data
-
+  
   public init(
     items: Data,
-    direction: VersatileListDirection,
-    @ViewBuilder cell: @escaping (Data.Element) -> Cell,
-    @ViewBuilder separator: @escaping () -> Separator
+    direction: CollectionViewListDirection,
+    layout: Layout,
+    @ViewBuilder cell: @escaping (Data.Index, Data.Element) -> Cell
   ) {
-
+    
     self.direction = direction
     self.cell = cell
-    self.separator = separator
+    self.layout = layout
     self.items = items
   }
-
+  
   public var body: some View {
-
+    
     // for now, switching verbose way
-
-    switch direction {
-    case .vertical:
-
-      ScrollView(.vertical) {
-        LazyVStack {
-          ForEach(IndexedCollection(items)) { element in
-            cell(element.value)
-          }
-        }
-      }
-
-    case .horizontal:
-
-      ScrollView(.horizontal) {
-        LazyHStack {
-          ForEach(IndexedCollection(items)) { element in
-            cell(element.value)
-          }
-        }
-      }
-
+    
+    ForEach(IndexedCollection(items)) { element in      
+      cell(element.index, element.value)
     }
-
+    .modifier(layout)
+            
   }
 }
 
 #if DEBUG
 
-  private struct Item: Identifiable {
-    var id: Int
-    var title: String
-
-    static func mock() -> [Item] {
-      return (0..<10).map { index in
-        Item(id: index, title: "Item \(index)")
-      }
+private struct Item: Identifiable {
+  var id: Int
+  var title: String
+  
+  static func mock() -> [Item] {
+    return (0..<10).map { index in
+      Item(id: index, title: "Item \(index)")
     }
   }
+}
 
-  #Preview {
-
-    CollectionView(
-      items: Item.mock(), direction: .vertical,
-      cell: { item in
+#Preview("Custom List") {
+  
+  CollectionView(
+    items: Item.mock(), direction: .vertical,
+    layout: .list,
+    cell: { index, item in
+      HStack {
+        Text(index.description)
         Text(item.title)
-      }, 
-      separator: { EmptyView() }
-    )
-  }
+      }
+    }
+  )
+}
+
+#Preview("SwiftUI List") {
+  
+  CollectionView(
+    items: Item.mock(), direction: .vertical,
+    layout: CollectionViewLayouts.PlatformList(),
+    cell: { index, item in
+      HStack {
+        Text(index.description)
+        Text(item.title)
+      }
+    }
+  )
+}
 
 #endif
