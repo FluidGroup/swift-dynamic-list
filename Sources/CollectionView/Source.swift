@@ -6,8 +6,6 @@ public enum CollectionViewListDirection {
   case horizontal
 }
 
-
-
 public protocol CollectionViewLayoutType: ViewModifier {
   
 }
@@ -26,9 +24,14 @@ public enum CollectionViewLayouts {
   public struct List<Separator: View>: CollectionViewLayoutType {
         
     public let direction: CollectionViewListDirection
+    private let separator: Separator
     
-    public init(direction: CollectionViewListDirection) {
+    public init(
+      direction: CollectionViewListDirection,
+      @ViewBuilder separator: () -> Separator
+    ) {
       self.direction = direction
+      self.separator = separator()  
     }
            
     public func body(content: Content) -> some View {
@@ -37,8 +40,14 @@ public enum CollectionViewLayouts {
         
         ScrollView(.vertical) {
           LazyVStack {
-            VariadicViewReader(readingContent: content) { child in
-              child
+            VariadicViewReader(readingContent: content) { children in
+              let last = children.last?.id
+              ForEach(children) { child in 
+                child
+                if child.id != last {
+                  separator
+                }
+              }              
             }
           }
         }
@@ -47,8 +56,14 @@ public enum CollectionViewLayouts {
         
         ScrollView(.horizontal) {
           LazyHStack {
-            VariadicViewReader(readingContent: content) { child in
-              child
+            VariadicViewReader(readingContent: content) { children in
+              let last = children.last?.id
+              ForEach(children) { child in 
+                child
+                if child.id != last {
+                  separator
+                }
+              }  
             }
           }
         }
@@ -70,7 +85,10 @@ public enum CollectionViewLayouts {
 extension CollectionViewLayoutType where Self == CollectionViewLayouts.List<EmptyView> {
   
   public static var list: Self {
-    CollectionViewLayouts.List(direction: .vertical)
+    CollectionViewLayouts.List(
+      direction: .vertical,
+      separator: { EmptyView() }
+    )
   }
   
 }
@@ -80,7 +98,7 @@ extension CollectionViewLayoutType {
   public static func list<Separator: View>(
     @ViewBuilder separator: () -> Separator
   ) -> Self where Self == CollectionViewLayouts.List<Separator> {
-    .init(direction: .vertical)
+    .init(direction: .vertical, separator: separator)
   }
   
 }
@@ -156,7 +174,12 @@ private struct Item: Identifiable {
   
   CollectionView(
     items: Item.mock(), direction: .vertical,
-    layout: .list,
+    layout: .list {
+      RoundedRectangle(cornerRadius: 8)
+        .fill(.secondary)
+        .frame(height: 8)
+        .padding(.horizontal, 20)      
+    },
     cell: { index, item in
       HStack {
         Text(index.description)
