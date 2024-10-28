@@ -232,11 +232,11 @@ public struct CollectionView<
 }
 
 extension EnvironmentValues {
-  @Entry var collectionView_isSelected: Bool = false
+  @Entry public var collectionView_isSelected: Bool = false
 }
 
 extension EnvironmentValues {
-  @Entry var collectionView_updateSelection: (Bool) -> Void = { _ in }
+  @Entry public var collectionView_updateSelection: (Bool) -> Void = { _ in }
 }
 
 #if DEBUG
