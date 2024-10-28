@@ -14,6 +14,7 @@
 		4B3722682A33C701005FF24A /* BookUIKitBasedCompositional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B3722672A33C701005FF24A /* BookUIKitBasedCompositional.swift */; };
 		4B910EBC2A77A2F50079D26D /* BookUIKitBasedFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B910EBB2A77A2F50079D26D /* BookUIKitBasedFlow.swift */; };
 		4B9981D82A34F9B500840751 /* CompositionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4B9981D72A34F9B500840751 /* CompositionKit */; };
+		4BCF78712CB7E07C0081171E /* VersatileList in Frameworks */ = {isa = PBXBuildFile; productRef = 4BCF78702CB7E07C0081171E /* VersatileList */; };
 		4BD04C152B2C05C600FE41D9 /* BookPlainCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BD04C142B2C05C600FE41D9 /* BookPlainCollectionView.swift */; };
 		4BD04C172B2C13BB00FE41D9 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BD04C162B2C13BB00FE41D9 /* Logger.swift */; };
 		4BD04C192B2C15E100FE41D9 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BD04C182B2C15E100FE41D9 /* Color.swift */; };
@@ -59,6 +60,7 @@
 				4BEAFA4E2A3CE48800478C59 /* AsyncMultiplexImage-Nuke in Frameworks */,
 				4BEAFA4C2A3CE48800478C59 /* AsyncMultiplexImage in Frameworks */,
 				4B9981D82A34F9B500840751 /* CompositionKit in Frameworks */,
+				4BCF78712CB7E07C0081171E /* VersatileList in Frameworks */,
 				4BD542E92A362B40006261B9 /* DynamicList in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -138,6 +140,7 @@
 				4BD542E82A362B40006261B9 /* DynamicList */,
 				4BEAFA4B2A3CE48800478C59 /* AsyncMultiplexImage */,
 				4BEAFA4D2A3CE48800478C59 /* AsyncMultiplexImage-Nuke */,
+				4BCF78702CB7E07C0081171E /* VersatileList */,
 			);
 			productName = Development;
 			productReference = 4B26A6772A33239500B75FB4 /* Development.app */;
@@ -432,6 +435,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4B9981D62A34F9B500840751 /* XCRemoteSwiftPackageReference "CompositionKit" */;
 			productName = CompositionKit;
+		};
+		4BCF78702CB7E07C0081171E /* VersatileList */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VersatileList;
 		};
 		4BD542E82A362B40006261B9 /* DynamicList */ = {
 			isa = XCSwiftPackageProductDependency;

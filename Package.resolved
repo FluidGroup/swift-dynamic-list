@@ -1,0 +1,15 @@
+{
+  "originHash" : "e30de3866a1e223d0be5f8ba41ba45f2585ba57d726d72464171f918ff5f8d48",
+  "pins" : [
+    {
+      "identity" : "swift-indexed-collection",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FluidGroup/swift-indexed-collection",
+      "state" : {
+        "revision" : "9b17bf06eae73fee93dae9a0fa6de2e33900d9c5",
+        "version" : "0.2.1"
+      }
+    }
+  ],
+  "version" : 3
+}

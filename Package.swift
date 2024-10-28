@@ -11,9 +11,14 @@ let package = Package(
     .library(
       name: "DynamicList",
       targets: ["DynamicList"]
+    ),
+    .library(
+      name: "CollectionView",
+      targets: ["CollectionView"]
     )
   ],
   dependencies: [
+    .package(url: "https://github.com/FluidGroup/swift-indexed-collection", from: "0.2.1"),
   ],
   targets: [
     // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -21,6 +26,12 @@ let package = Package(
     .target(
       name: "DynamicList",
       dependencies: [
+      ]
+    ),
+    .target(
+      name: "CollectionView",
+      dependencies: [
+        .product(name: "IndexedCollection", package: "swift-indexed-collection"),
       ]
     ),
     .testTarget(
