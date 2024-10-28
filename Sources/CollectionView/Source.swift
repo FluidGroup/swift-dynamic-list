@@ -27,14 +27,18 @@ public enum CollectionViewLayouts {
   public struct List<Separator: View>: CollectionViewLayoutType {
         
     public let direction: CollectionViewListDirection
+    public let contentPadding: EdgeInsets
+
     private let separator: Separator
     
     public init(
       direction: CollectionViewListDirection,
+      contentPadding: EdgeInsets = .init(),
       @ViewBuilder separator: () -> Separator
     ) {
       self.direction = direction
-      self.separator = separator()  
+      self.contentPadding = contentPadding
+      self.separator = separator()
     }
            
     public func body(content: Content) -> some View {
@@ -53,6 +57,7 @@ public enum CollectionViewLayouts {
               }              
             }
           }
+          .padding(contentPadding)
         }
         
       case .horizontal:
@@ -69,6 +74,7 @@ public enum CollectionViewLayouts {
               }  
             }
           }
+          .padding(contentPadding)
         }
         
       }
@@ -155,9 +161,7 @@ public struct CollectionView<
   Cell: View,
   Layout: CollectionViewLayoutType
 >: View where Data.Element: Identifiable {
-  
-  public let direction: CollectionViewListDirection
-  
+
   private let cell: (Data.Index, Data.Element) -> Cell
   private let layout: Layout
   private let items: Data
@@ -166,12 +170,9 @@ public struct CollectionView<
     
   public init(
     items: Data,
-    direction: CollectionViewListDirection,
     layout: Layout,
     @ViewBuilder cell: @escaping (Data.Index, Data.Element) -> Cell
   ) {
-    
-    self.direction = direction
     self.cell = cell
     self.layout = layout
     self.items = items
@@ -282,7 +283,7 @@ private struct Cell: View {
     
     var body: some View {
       CollectionView(
-        items: Item.mock(), direction: .vertical,
+        items: Item.mock(),
         layout: .list {
           RoundedRectangle(cornerRadius: 8)
             .fill(.secondary)
@@ -312,7 +313,7 @@ private struct Cell: View {
     
     var body: some View {
       CollectionView(
-        items: Item.mock(), direction: .vertical,
+        items: Item.mock(),
         layout: .list {
           RoundedRectangle(cornerRadius: 8)
             .fill(.secondary)
@@ -342,7 +343,7 @@ private struct Cell: View {
 #Preview("SwiftUI List") {
   
   CollectionView(
-    items: Item.mock(), direction: .vertical,
+    items: Item.mock(),
     layout: CollectionViewLayouts.PlatformList(),
     cell: { index, item in
       HStack {
