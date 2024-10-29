@@ -149,6 +149,7 @@ public enum Selection<Item: Identifiable> {
    */
   case multiple(
     selected: Set<Item.ID>,
+    canMoreSelect: Bool,
     onChange: (_ selected: Item, _ action: SelectAction) -> Void
   )
 }
@@ -184,18 +185,33 @@ public struct CollectionView<
     
     ForEach(IndexedCollection(items)) { element in  
       
-      let isSelected = {
+      let isSelected: Bool = {
         switch selection {
         case .none: 
           return false
         case .single(let id, _):
           return element.id == id
-        case .multiple(let set, _):
+        case .multiple(let set, _, _):
           return set.contains(element.id)
         }
       }()
       
+      let isDisabled: Bool = { () -> Bool in
+        switch selection {
+        case .none: 
+          return false
+        case .single(let id, _):
+          return false
+        case .multiple(_, let canMoreSelect, _):
+          if isSelected {
+            return false
+          }
+          return !canMoreSelect
+        }
+      }()
+            
       cell(element.index, element.value)
+        .disabled(isDisabled)
         .environment(\.collectionView_isSelected, isSelected)
         .environment(\.collectionView_updateSelection, { [selection] isSelected in 
           
@@ -206,7 +222,7 @@ public struct CollectionView<
             } else {
               onChange(nil)
             }
-          case .multiple(_, let onChange):
+          case .multiple(_, _, let onChange):
             if isSelected {
               onChange(element.value, .selected)
             } else {
@@ -254,6 +270,7 @@ private struct Item: Identifiable {
 
 private struct Cell: View {
   
+  @Environment(\.isEnabled) var isEnabled
   @Environment(\.collectionView_isSelected) var isSelected
   @Environment(\.collectionView_updateSelection) var updateSelection
   
@@ -268,6 +285,7 @@ private struct Cell: View {
         .opacity(isSelected ? 1 : 0.2)
       Text(index.description)
       Text(item.title)
+      Text("isEnabled: \(isEnabled)")
     }
     ._onButtonGesture(pressing: { _ in }, perform: {
       updateSelection(!isSelected)
@@ -325,7 +343,8 @@ private struct Cell: View {
         }
       )
       .selection(.multiple(
-        selected: selected,
+        selected: selected, 
+        canMoreSelect: selected.count < 3,
         onChange: { e, action in
           switch action {
           case .selected:
