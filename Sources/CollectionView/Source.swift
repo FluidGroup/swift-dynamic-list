@@ -126,33 +126,134 @@ public enum SelectAction {
   case deselected
 }
 
-/// 
-public enum Selection<Item: Identifiable> {
+public protocol CollectionViewSelection<Item> {
   
-  /**
-   Single selection
-   
-   - Parameters:
-   - selected:
-   - onChange: passing newly selected item, nil represents as deselected.
-   */
-  case single(
+  associatedtype Item: Identifiable
+  
+  func isSelected(for id: Item.ID) -> Bool
+  
+  func isEnabled(for id: Item.ID) -> Bool
+  
+  func update(isSelected: Bool, for item: Item)
+}
+
+extension CollectionViewSelection {
+  
+  public static func single<Item: Identifiable>(
     selected: Item.ID?,
-    onChange: (_ selected: Item?) -> Void)
+    onChange: @escaping (_ selected: Item?) -> Void
+  ) -> Self where Self == CollectionViewSelectionModes.Single<Item> {
+    .init(
+      selected: selected,
+      onChange: onChange
+    )
+  }
   
-  /**
-   Multiple selection
-   
-   - Parameters:
-     - selected:
-     - onChange: passing newly selected item, nil represents as deselected.
-   */
-  case multiple(
+  public static func multiple<Item: Identifiable>(
     selected: Set<Item.ID>,
     canMoreSelect: Bool,
-    onChange: (_ selected: Item, _ action: SelectAction) -> Void
-  )
+    onChange: @escaping (_ selected: Item, _ selection: SelectAction) -> Void
+  ) -> Self where Self == CollectionViewSelectionModes.Multiple<Item> {
+    .init(
+      selected: selected,
+      canMoreSelect: canMoreSelect,
+      onChange: onChange
+    )
+  }
+  
+  
 }
+
+public enum CollectionViewSelectionModes {
+  
+  public struct None<Item: Identifiable>: CollectionViewSelection {
+    
+    public init() {
+      
+    }
+    
+    public func isSelected(for id: Item.ID) -> Bool {
+      false
+    }
+    
+    public func isEnabled(for id: Item.ID) -> Bool {
+      true
+    }    
+
+    public func update(isSelected: Bool, for item: Item) {
+      
+    }
+  }
+  
+  public struct Single<Item: Identifiable>: CollectionViewSelection {
+    
+    private let selected: Item.ID?
+    private let onChange: (_ selected: Item?) -> Void
+    
+    public init(
+      selected: Item.ID?,
+      onChange: @escaping (_ selected: Item?) -> Void      
+    ) {
+      self.selected = selected
+      self.onChange = onChange
+    }
+    
+    public func isSelected(for id: Item.ID) -> Bool {
+      self.selected == id
+    }
+    
+    public func isEnabled(for id: Item.ID) -> Bool {
+      return true
+    }
+    
+    public func update(isSelected: Bool, for item: Item) {
+      if isSelected {
+        onChange(item)
+      } else {
+        onChange(nil)
+      }
+    }
+    
+  }
+  
+  public struct Multiple<Item: Identifiable>: CollectionViewSelection {
+    
+    private let selected: Set<Item.ID>
+    private let canMoreSelect: Bool
+    private let onChange: (_ selected: Item, _ action: SelectAction) -> Void
+ 
+    public init(
+      selected: Set<Item.ID>,
+      canMoreSelect: Bool,
+      onChange: @escaping (_ selected: Item, _ action: SelectAction) -> Void      
+    ) {
+      self.selected = selected
+      self.canMoreSelect = canMoreSelect
+      self.onChange = onChange                  
+    }
+    
+    public func isSelected(for id: Item.ID) -> Bool {
+      self.selected.contains(id)
+    }
+    
+    public func isEnabled(for id: Item.ID) -> Bool {
+      if isSelected(for: id) {
+        return true
+      }
+      return canMoreSelect
+    }
+    
+    public func update(isSelected: Bool, for item: Item) {
+      if isSelected {
+        onChange(item, .selected)
+      } else {
+        onChange(item, .deselected)
+      }
+    }
+  }
+  
+}
+
 
 /// Still searching better name
 /// - built on top of SwiftUI only
@@ -160,23 +261,37 @@ public enum Selection<Item: Identifiable> {
 public struct CollectionView<
   Data: RandomAccessCollection,
   Cell: View,
-  Layout: CollectionViewLayoutType
+  Layout: CollectionViewLayoutType,
+  Selection: CollectionViewSelection<Data.Element>
 >: View where Data.Element: Identifiable {
 
   private let cell: (Data.Index, Data.Element) -> Cell
   private let layout: Layout
   private let items: Data
     
-  private var selection: Selection<Data.Element>?
+  private var selection: Selection
     
   public init(
     items: Data,
     layout: Layout,
     @ViewBuilder cell: @escaping (Data.Index, Data.Element) -> Cell
+  ) where Selection == CollectionViewSelectionModes.None<Data.Element> {
+    self.cell = cell
+    self.layout = layout
+    self.items = items
+    self.selection = .init()
+  }
+  
+  public init(
+    items: Data,
+    layout: Layout,
+    selection: Selection,
+    @ViewBuilder cell: @escaping (Data.Index, Data.Element) -> Cell
   ) {
     self.cell = cell
     self.layout = layout
     self.items = items
+    self.selection = selection
   }
   
   public var body: some View {
@@ -185,66 +300,26 @@ public struct CollectionView<
     
     ForEach(IndexedCollection(items)) { element in  
       
-      let isSelected: Bool = {
-        switch selection {
-        case .none: 
-          return false
-        case .single(let id, _):
-          return element.id == id
-        case .multiple(let set, _, _):
-          return set.contains(element.id)
-        }
-      }()
-      
-      let isDisabled: Bool = { () -> Bool in
-        switch selection {
-        case .none: 
-          return false
-        case .single(let id, _):
-          return false
-        case .multiple(_, let canMoreSelect, _):
-          if isSelected {
-            return false
-          }
-          return !canMoreSelect
-        }
-      }()
+      let isSelected: Bool = selection.isSelected(for: element.id)
+      let isDisabled: Bool = !selection.isEnabled(for: element.id)
             
       cell(element.index, element.value)
         .disabled(isDisabled)
         .environment(\.collectionView_isSelected, isSelected)
-        .environment(\.collectionView_updateSelection, { [selection] isSelected in 
-          
-          switch (selection) {
-          case (.single(_, let onChange)):
-            if isSelected {
-              onChange(element.value)
-            } else {
-              onChange(nil)
-            }
-          case .multiple(_, _, let onChange):
-            if isSelected {
-              onChange(element.value, .selected)
-            } else {
-              onChange(element.value, .deselected)
-            }
-          default:
-            break
-          }
+        .environment(\.collectionView_updateSelection, { [selection] isSelected in           
+          selection.update(isSelected: isSelected, for: element.value)
         })
     }
     .modifier(layout)
             
   }
   
-  public consuming func selection(
-    _ selection: Selection<Data.Element>
-  ) -> Self {    
-    
-    self.selection = selection
-    
-    return self
+  public consuming func selection<NewSelection: CollectionViewSelection<Data.Element>>(
+    _ selection: NewSelection
+  ) -> CollectionView<Data, Cell, Layout, NewSelection> {        
+    return .init(items: items, layout: layout, selection: selection, cell: cell)
   }
+  
 }
 
 extension EnvironmentValues {
