@@ -130,10 +130,13 @@ public protocol CollectionViewSelection<Item> {
   
   associatedtype Item: Identifiable
   
+  /// Returns whether the item is selected or not
   func isSelected(for id: Item.ID) -> Bool
   
+  /// Returns whether the item is enabled to be selected or not
   func isEnabled(for id: Item.ID) -> Bool
   
+  /// Update the selection state
   func update(isSelected: Bool, for item: Item)
 }
 
