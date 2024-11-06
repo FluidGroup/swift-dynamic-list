@@ -1,5 +1,6 @@
-import CollectionView
 import SwiftUI
+
+@testable import CollectionView
 
 struct BookCollectionViewSingleSection: View, PreviewProvider {
 
@@ -18,17 +19,19 @@ struct BookCollectionViewSingleSection: View, PreviewProvider {
 
     var body: some View {
       CollectionView(
-        dataSource: .collection(
-          data: Item.mock(),
-          selection: .single(
-            selected: selected?.id,
-            onChange: { e in
-              selected = e
-            }),
-          cell: { index, item in
-            Cell(index: index, item: item)
-          }
-        ),
+        content: {
+          SelectableForEach(
+            data: Item.mock(),
+            selection: .single(
+              selected: selected?.id,
+              onChange: { e in
+                selected = e
+              }),
+            cell: { index, item in
+              Cell(index: index, item: item)
+            }
+          )
+        },
         layout: .list {
           RoundedRectangle(cornerRadius: 8)
             .fill(.secondary)
@@ -59,7 +62,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
 
     var body: some View {
       CollectionView(
-        dataSource: CollectionViewDataSources.Unified {
+        content: {
 
           Text("Static content")
             .overlay(content: {
@@ -68,7 +71,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
 
           Text("📱❄️")
 
-          CollectionViewDataSources.UsingCollection(
+          SelectableForEach(
             data: Item.mock(10),
             selection: .single(
               selected: selected?.id,
@@ -82,7 +85,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
 
           Text("📱❄️")
 
-          CollectionViewDataSources.UsingCollection(
+          SelectableForEach(
             data: Item.mock(10),
             selection: .single(
               selected: selected2?.id,
@@ -110,19 +113,6 @@ struct BookCollectionViewCombined: View, PreviewProvider {
 
 }
 
-#Preview {
-  CollectionViewDataSources.UsingCollection(
-    data: Item.mock(10),
-    selection: .disabled(),
-    cell: { index, item in
-      Cell(index: index, item: item)
-    }
-  )  
-}
-//#Preview {
-//  BookPreview()
-//}
-
 #Preview("Custom List / Single selection") {
 
   struct Book: View {
@@ -131,17 +121,19 @@ struct BookCollectionViewCombined: View, PreviewProvider {
 
     var body: some View {
       CollectionView(
-        dataSource: CollectionViewDataSources.UsingCollection(
-          data: Item.mock(),
-          selection: .single(
-            selected: selected?.id,
-            onChange: { e in
-              selected = e
-            }),
-          cell: { index, item in
-            Cell(index: index, item: item)
-          }
-        ),
+        content: {
+          SelectableForEach(
+            data: Item.mock(),
+            selection: .single(
+              selected: selected?.id,
+              onChange: { e in
+                selected = e
+              }),
+            cell: { index, item in
+              Cell(index: index, item: item)
+            }
+          )
+        },
         layout: .list {
           RoundedRectangle(cornerRadius: 8)
             .fill(.secondary)
@@ -164,23 +156,25 @@ struct BookCollectionViewCombined: View, PreviewProvider {
     var body: some View {
 
       CollectionView(
-        dataSource: CollectionViewDataSources.UsingCollection(
-          data: Item.mock(),
-          selection: .multiple(
-            selected: selected,
-            canMoreSelect: selected.count < 3,
-            onChange: { e, action in
-              switch action {
-              case .selected:
-                selected.insert(e.id)
-              case .deselected:
-                selected.remove(e.id)
-              }
-            }),
-          cell: { index, item in
-            Cell(index: index, item: item)
-          }
-        ),
+        content: {
+          SelectableForEach(
+            data: Item.mock(),
+            selection: .multiple(
+              selected: selected,
+              canMoreSelect: selected.count < 3,
+              onChange: { e, action in
+                switch action {
+                case .selected:
+                  selected.insert(e.id)
+                case .deselected:
+                  selected.remove(e.id)
+                }
+              }),
+            cell: { index, item in
+              Cell(index: index, item: item)
+            }
+          )
+        },
         layout: .list {
           RoundedRectangle(cornerRadius: 8)
             .fill(.secondary)
@@ -197,16 +191,18 @@ struct BookCollectionViewCombined: View, PreviewProvider {
 #Preview("SwiftUI List") {
 
   CollectionView(
-    dataSource: CollectionViewDataSources.UsingCollection(
-      data: Item.mock(),
-      selection: .disabled(),
-      cell: { index, item in
-        HStack {
-          Text(index.description)
-          Text(item.title)
+    content: {
+      SelectableForEach(
+        data: Item.mock(),
+        selection: .disabled(),
+        cell: { index, item in
+          HStack {
+            Text(index.description)
+            Text(item.title)
+          }
         }
-      }
-    ),
+      )
+    },
     layout: CollectionViewLayouts.PlatformList()
   )
 }
@@ -246,84 +242,27 @@ struct BookCollectionViewCombined: View, PreviewProvider {
   return BookList()
 }
 
-struct Item: Identifiable {
-  var id: Int
-  var title: String
+#Preview("SelectableForEach") {
 
-  static func mock(_ count: Int = 1000) -> [Item] {
-    return (0..<count).map { index in
-      Item(id: index, title: "Item \(index)")
+  struct Book: View {
+
+    @State var selected: Item?
+
+    var body: some View {
+      SelectableForEach(
+        data: Item.mock(10),
+        selection: .single(
+          selected: selected?.id,
+          onChange: { e in
+            selected = e
+          }),
+        cell: { index, item in
+          Cell(index: index, item: item)
+        }
+      )
     }
   }
-}
 
-struct Cell: View {
-
-  @Environment(\.isEnabled) var isEnabled
-  @Environment(\.collectionView_isSelected) var isSelected
-  @Environment(\.collectionView_updateSelection) var updateSelection
-
-  let index: Int
-  let item: Item
-
-  init(index: Int, item: Item) {
-
-    print("Cell init \(index), \(item.title)")
-
-    self.index = index
-    self.item = item
-  }
-
-  var body: some View {
-    HStack {
-      Circle()
-        .fill(.red)
-        .frame(width: 20, height: 20)
-        .opacity(isSelected ? 1 : 0.2)
-      Text(index.description)
-      Text(item.title)
-      Text("isEnabled: \(isEnabled)")
-    }
-    ._onButtonGesture(
-      pressing: { _ in },
-      perform: {
-        updateSelection(!isSelected)
-      })
-  }
-}
-
-private struct ConfirmingSingle<Item: Identifiable>: CollectionViewSelection {
-
-  private let selected: Item.ID?
-  private let onChange: (_ selected: Item?) -> Void
-  private let canSelect: (_ item: Item) -> Bool
-
-  public init(
-    selected: Item.ID?,
-    canSelect: @escaping (_ item: Item) -> Bool,
-    onChange: @escaping (_ selected: Item?) -> Void
-  ) {
-    self.selected = selected
-    self.onChange = onChange
-    self.canSelect = canSelect
-  }
-
-  public func isSelected(for id: Item.ID) -> Bool {
-    self.selected == id
-  }
-
-  public func isEnabled(for id: Item.ID) -> Bool {
-    return true
-  }
-
-  public func update(isSelected: Bool, for item: Item) {
-    if isSelected {
-      if canSelect(item) {
-        onChange(item)
-      }
-    } else {
-      onChange(nil)
-    }
-  }
+  return Book()
 
 }
