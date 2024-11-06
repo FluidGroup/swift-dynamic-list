@@ -19,7 +19,7 @@ public protocol CollectionViewSelection<Item> {
 }
 
 extension CollectionViewSelection {
-  
+      
   public static func single<Item: Identifiable>(
     selected: Item.ID?,
     onChange: @escaping (_ selected: Item?) -> Void
@@ -40,6 +40,10 @@ extension CollectionViewSelection {
       canMoreSelect: canMoreSelect,
       onChange: onChange
     )
+  }
+  
+  public static func disabled<Item: Identifiable>() -> Self where Self == CollectionViewSelectionModes.None<Item> {
+    .init()    
   }
     
 }

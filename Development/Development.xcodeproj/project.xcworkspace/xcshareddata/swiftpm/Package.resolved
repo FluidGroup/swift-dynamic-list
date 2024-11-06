@@ -1,4 +1,5 @@
 {
+  "originHash" : "e89878bf140720e29e318b93f44c5d0df6cceb734010ef6111491735cb630699",
   "pins" : [
     {
       "identity" : "compositionkit",
@@ -37,6 +38,15 @@
       }
     },
     {
+      "identity" : "swift-indexed-collection",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FluidGroup/swift-indexed-collection",
+      "state" : {
+        "revision" : "9b17bf06eae73fee93dae9a0fa6de2e33900d9c5",
+        "version" : "0.2.1"
+      }
+    },
+    {
       "identity" : "swiftui-async-multiplex-image",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/FluidGroup/swiftui-async-multiplex-image",
@@ -64,5 +74,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
