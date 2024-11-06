@@ -4,7 +4,7 @@ public enum SelectAction {
   case deselected
 }
 
-public protocol CollectionViewSelection<Item> {
+public protocol SelectionState<Item> {
   
   associatedtype Item: Identifiable
   
@@ -18,12 +18,12 @@ public protocol CollectionViewSelection<Item> {
   func update(isSelected: Bool, for item: Item)
 }
 
-extension CollectionViewSelection {
+extension SelectionState {
       
   public static func single<Item: Identifiable>(
     selected: Item.ID?,
     onChange: @escaping (_ selected: Item?) -> Void
-  ) -> Self where Self == CollectionViewSelectionModes.Single<Item> {
+  ) -> Self where Self == SelectionStateContainers.Single<Item> {
     .init(
       selected: selected,
       onChange: onChange
@@ -34,7 +34,7 @@ extension CollectionViewSelection {
     selected: Set<Item.ID>,
     canMoreSelect: Bool,
     onChange: @escaping (_ selected: Item, _ selection: SelectAction) -> Void
-  ) -> Self where Self == CollectionViewSelectionModes.Multiple<Item> {
+  ) -> Self where Self == SelectionStateContainers.Multiple<Item> {
     .init(
       selected: selected,
       canMoreSelect: canMoreSelect,
@@ -42,15 +42,18 @@ extension CollectionViewSelection {
     )
   }
   
-  public static func disabled<Item: Identifiable>() -> Self where Self == CollectionViewSelectionModes.None<Item> {
+  public static func disabled<Item: Identifiable>() -> Self where Self == SelectionStateContainers.Disabled<Item> {
     .init()    
   }
     
 }
 
-public enum CollectionViewSelectionModes {
+/**
+ A namespace for selection state containers. 
+ */
+public enum SelectionStateContainers {
   
-  public struct None<Item: Identifiable>: CollectionViewSelection {
+  public struct Disabled<Item: Identifiable>: SelectionState {
     
     public init() {
       
@@ -69,7 +72,7 @@ public enum CollectionViewSelectionModes {
     }
   }
   
-  public struct Single<Item: Identifiable>: CollectionViewSelection {
+  public struct Single<Item: Identifiable>: SelectionState {
     
     private let selected: Item.ID?
     private let onChange: (_ selected: Item?) -> Void
@@ -100,7 +103,7 @@ public enum CollectionViewSelectionModes {
     
   }
   
-  public struct Multiple<Item: Identifiable>: CollectionViewSelection {
+  public struct Multiple<Item: Identifiable>: SelectionState {
     
     private let selected: Set<Item.ID>
     private let canMoreSelect: Bool
