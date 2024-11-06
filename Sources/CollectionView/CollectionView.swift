@@ -1,39 +1,28 @@
 import IndexedCollection
 import SwiftUI
 
-
-/// Still searching better name
-/// - built on top of SwiftUI only
-@available(iOS 16, *)
 public struct CollectionView<
-  DataSource: CollectionViewDataSource,
+  Content: View,
   Layout: CollectionViewLayoutType
 >: View {
 
-  private let dataSource: DataSource
+  private let content: Content
+
   private let layout: Layout
 
   public init(
-    dataSource: DataSource,
+    @ViewBuilder content: () -> Content,
     layout: Layout
   ) {
-    self.dataSource = dataSource
+    self.content = content()
     self.layout = layout
+    self.items = items
+    self.selection = .init()
   }
 
   public var body: some View {
-
-    self.dataSource
+    content
       .modifier(layout)
-
   }
 
-}
-
-extension EnvironmentValues {
-  @Entry public var collectionView_isSelected: Bool = false
-}
-
-extension EnvironmentValues {
-  @Entry public var collectionView_updateSelection: (Bool) -> Void = { _ in }
 }
