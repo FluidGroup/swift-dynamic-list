@@ -16,8 +16,6 @@ public struct CollectionView<
   ) {
     self.content = content()
     self.layout = layout
-    self.items = items
-    self.selection = .init()
   }
 
   public var body: some View {
