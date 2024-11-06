@@ -25,8 +25,12 @@ struct ContentView: View {
           BookUIKitBasedFlow()
         }
 
-        NavigationLink("CollectionView Lab") {
+        NavigationLink("UICollectionView Lab") {
           BookPlainCollectionView()
+        }
+        
+        NavigationLink("CollectionView") {
+          BookCollectionViewSingleSection()
         }
       }
     }

@@ -16,6 +16,9 @@ public enum CollectionViewLayouts {
   
   public struct PlatformList: CollectionViewLayoutType {
     
+    public init() {
+    }
+    
     public func body(content: Content) -> some View {
       SwiftUI.List {
         content
@@ -45,30 +48,34 @@ public enum CollectionViewLayouts {
       case .vertical:
         
         ScrollView(.vertical) {
-          LazyVStack {
-            VariadicViewReader(readingContent: content) { children in
-              let last = children.last?.id
+          
+          UnaryViewReader(readingContent: content) { children in
+            let last = children.last?.id
+            LazyVStack {
               ForEach(children) { child in 
                 child
                 if child.id != last {
                   separator
+                    ._identified(by: "separator-\(child.id)")
                 }
-              }              
+              }           
             }
-          }
-          .padding(contentPadding)
+          }              
+          .padding(contentPadding)              
+                    
         }
         
       case .horizontal:
         
         ScrollView(.horizontal) {
-          LazyHStack {
-            VariadicViewReader(readingContent: content) { children in
-              let last = children.last?.id
+          UnaryViewReader(readingContent: content) { children in
+            let last = children.last?.id
+            LazyHStack {
               ForEach(children) { child in 
                 child
                 if child.id != last {
                   separator
+                    ._identified(by: "separator-\(child.id)")
                 }
               }  
             }
