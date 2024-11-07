@@ -11,11 +11,11 @@ public struct CollectionView<
   public let layout: Layout
 
   public init(
-    @ViewBuilder content: () -> Content,
-    layout: Layout
+    layout: Layout,
+    @ViewBuilder content: () -> Content
   ) {
-    self.content = content()
     self.layout = layout
+    self.content = content()
   }
 
   public var body: some View {
