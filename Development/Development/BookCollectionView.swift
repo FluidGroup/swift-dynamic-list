@@ -32,16 +32,55 @@ struct BookCollectionViewSingleSection: View, PreviewProvider {
             }
           )
         },
-        layout: .list {
+        layout: .list.separator(separator: { 
           RoundedRectangle(cornerRadius: 8)
             .fill(.secondary)
             .frame(height: 8)
             .padding(.horizontal, 20)
-        }
+        })
       )
+            
     }
   }
 
+}
+
+struct BookCollectionViewSingleSectionNoSeparator: View, PreviewProvider {
+  
+  var body: some View {
+    ContentView()
+  }
+  
+  static var previews: some View {
+    Self()
+      .previewDisplayName(nil)
+  }
+  
+  private struct ContentView: View {
+    
+    @State var selected: Item?
+    
+    var body: some View {
+      CollectionView(
+        content: {
+          SelectableForEach(
+            data: Item.mock(),
+            selection: .single(
+              selected: selected?.id,
+              onChange: { e in
+                selected = e
+              }),
+            cell: { index, item in
+              Cell(index: index, item: item)
+            }
+          )
+        },
+        layout: .list
+      )
+      
+    }
+  }
+  
 }
 
 struct BookCollectionViewCombined: View, PreviewProvider {
@@ -104,9 +143,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
           }
 
         },
-        layout: .list {
-          EmptyView()
-        }
+        layout: .list
       )
     }
   }
@@ -134,7 +171,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
             }
           )
         },
-        layout: .list {
+        layout: .list.separator {
           RoundedRectangle(cornerRadius: 8)
             .fill(.secondary)
             .frame(height: 8)
@@ -175,7 +212,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
             }
           )
         },
-        layout: .list {
+        layout: .list.separator {
           RoundedRectangle(cornerRadius: 8)
             .fill(.secondary)
             .frame(height: 8)
@@ -188,23 +225,40 @@ struct BookCollectionViewCombined: View, PreviewProvider {
   return Book()
 }
 
-#Preview("SwiftUI List") {
-
-  CollectionView(
-    content: {
-      SelectableForEach(
-        data: Item.mock(),
-        selection: .disabled(),
-        cell: { index, item in
-          HStack {
-            Text(index.description)
-            Text(item.title)
-          }
-        }
+struct BookPlatformList: View, PreviewProvider {
+  var body: some View {
+    ContentView()
+  }
+  
+  static var previews: some View {
+    Self()
+      .previewDisplayName(nil)
+  }
+  
+  private struct ContentView: View {
+    
+    @State var selected: Item?
+    
+    var body: some View {
+      CollectionView(
+        content: {
+          SelectableForEach(
+            data: Item.mock(),
+            selection: .single(
+              selected: selected?.id,
+              onChange: { e in
+                selected = e
+              }
+            ),
+            cell: { index, item in
+              Cell(index: index, item: item)
+            }
+          )
+        },
+        layout: CollectionViewLayouts.PlatformList()
       )
-    },
-    layout: CollectionViewLayouts.PlatformList()
-  )
+    }
+  }
 }
 
 #Preview {

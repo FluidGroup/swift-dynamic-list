@@ -6,9 +6,9 @@ public struct CollectionView<
   Layout: CollectionViewLayoutType
 >: View {
 
-  private let content: Content
+  public let content: Content
 
-  private let layout: Layout
+  public let layout: Layout
 
   public init(
     @ViewBuilder content: () -> Content,
