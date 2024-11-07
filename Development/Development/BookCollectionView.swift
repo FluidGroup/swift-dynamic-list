@@ -19,6 +19,14 @@ struct BookCollectionViewSingleSection: View, PreviewProvider {
 
     var body: some View {
       CollectionView(
+        layout: .list.separator(
+          separator: {
+            RoundedRectangle(cornerRadius: 8)
+              .fill(.secondary)
+              .frame(height: 8)
+              .padding(.horizontal, 20)
+          }
+        ),
         content: {
           SelectableForEach(
             data: Item.mock(),
@@ -31,56 +39,50 @@ struct BookCollectionViewSingleSection: View, PreviewProvider {
               Cell(index: index, item: item)
             }
           )
-        },
-        layout: .list.separator(separator: { 
-          RoundedRectangle(cornerRadius: 8)
-            .fill(.secondary)
-            .frame(height: 8)
-            .padding(.horizontal, 20)
-        })
-      )
-            
-    }
-  }
-
-}
-
-struct BookCollectionViewSingleSectionNoSeparator: View, PreviewProvider {
-  
-  var body: some View {
-    ContentView()
-  }
-  
-  static var previews: some View {
-    Self()
-      .previewDisplayName(nil)
-  }
-  
-  private struct ContentView: View {
-    
-    @State var selected: Item?
-    
-    var body: some View {
-      CollectionView(
-        content: {
-          SelectableForEach(
-            data: Item.mock(),
-            selection: .single(
-              selected: selected?.id,
-              onChange: { e in
-                selected = e
-              }),
-            cell: { index, item in
-              Cell(index: index, item: item)
-            }
-          )
-        },
-        layout: .list
+        }
       )
       
     }
   }
   
+}
+
+struct BookCollectionViewSingleSectionNoSeparator: View, PreviewProvider {
+
+  var body: some View {
+    ContentView()
+  }
+
+  static var previews: some View {
+    Self()
+      .previewDisplayName(nil)
+  }
+
+  private struct ContentView: View {
+
+    @State var selected: Item?
+
+    var body: some View {
+      CollectionView(
+        layout: .list,
+        content: {
+          SelectableForEach(
+            data: Item.mock(),
+            selection: .single(
+              selected: selected?.id,
+              onChange: { e in
+                selected = e
+              }),
+            cell: { index, item in
+              Cell(index: index, item: item)
+            }
+          )
+        }
+      )
+
+    }
+  }
+
 }
 
 struct BookCollectionViewCombined: View, PreviewProvider {
@@ -101,6 +103,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
 
     var body: some View {
       CollectionView(
+        layout: .list,
         content: {
 
           Text("Static content")
@@ -142,8 +145,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
             Cell(index: item.id, item: item)
           }
 
-        },
-        layout: .list
+        }
       )
     }
   }
@@ -158,6 +160,12 @@ struct BookCollectionViewCombined: View, PreviewProvider {
 
     var body: some View {
       CollectionView(
+        layout: .list.separator {
+          RoundedRectangle(cornerRadius: 8)
+            .fill(.secondary)
+            .frame(height: 8)
+            .padding(.horizontal, 20)
+        },
         content: {
           SelectableForEach(
             data: Item.mock(),
@@ -170,13 +178,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
               Cell(index: index, item: item)
             }
           )
-        },
-        layout: .list.separator {
-          RoundedRectangle(cornerRadius: 8)
-            .fill(.secondary)
-            .frame(height: 8)
-            .padding(.horizontal, 20)
-        }
+        }        
       )
     }
   }
@@ -193,6 +195,12 @@ struct BookCollectionViewCombined: View, PreviewProvider {
     var body: some View {
 
       CollectionView(
+        layout: .list.separator {
+          RoundedRectangle(cornerRadius: 8)
+            .fill(.secondary)
+            .frame(height: 8)
+            .padding(.horizontal, 20)
+        },
         content: {
           SelectableForEach(
             data: Item.mock(),
@@ -211,13 +219,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
               Cell(index: index, item: item)
             }
           )
-        },
-        layout: .list.separator {
-          RoundedRectangle(cornerRadius: 8)
-            .fill(.secondary)
-            .frame(height: 8)
-            .padding(.horizontal, 20)
-        }
+        }       
       )
     }
   }
@@ -229,18 +231,19 @@ struct BookPlatformList: View, PreviewProvider {
   var body: some View {
     ContentView()
   }
-  
+
   static var previews: some View {
     Self()
       .previewDisplayName(nil)
   }
-  
+
   private struct ContentView: View {
-    
+
     @State var selected: Item?
-    
+
     var body: some View {
       CollectionView(
+        layout: CollectionViewLayouts.PlatformList(),
         content: {
           SelectableForEach(
             data: Item.mock(),
@@ -254,8 +257,7 @@ struct BookPlatformList: View, PreviewProvider {
               Cell(index: index, item: item)
             }
           )
-        },
-        layout: CollectionViewLayouts.PlatformList()
+        }
       )
     }
   }
