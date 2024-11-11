@@ -1,3 +1,4 @@
+import SwiftUI
 
 public enum SelectAction {
   case selected
@@ -16,6 +17,26 @@ public protocol SelectionState<Item> {
   
   /// Update the selection state
   func update(isSelected: Bool, for item: Item)
+}
+
+extension SelectionState {
+  
+  public func applyEnvironments<Body: View>(for body: Body, item: Item) -> some View {
+   
+    let isSelected: Bool = isSelected(for: item.id)
+    let isDisabled: Bool = !isEnabled(for: item.id)
+    
+    return body
+      .disabled(isDisabled)
+      .environment(\.collectionView_isSelected, isSelected)
+      .environment(
+        \.collectionView_updateSelection,
+         { isSelected in
+           self.update(isSelected: isSelected, for: item)
+         }
+      )    
+  }
+  
 }
 
 extension SelectionState {
