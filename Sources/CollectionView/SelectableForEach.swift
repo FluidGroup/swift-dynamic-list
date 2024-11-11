@@ -33,17 +33,13 @@ public struct SelectableForEach<
   public var body: some View {
     ForEach(IndexedCollection(data)) { element in
       
-      let isSelected: Bool = selection.isSelected(for: element.id)
+      let isSelected: Bool = selection.isSelected(for: element.value.id)
       let isDisabled: Bool = !selection.isEnabled(for: element.id)
       
-      cell(element.index, element.value)
-        .disabled(isDisabled)
-        .environment(\.collectionView_isSelected, isSelected)
-        .environment(
-          \.collectionView_updateSelection,
-           { [selection] isSelected in
-             selection.update(isSelected: isSelected, for: element.value)
-           })
+      selection.applyEnvironments(
+        for: cell(element.index, element.value), 
+        item: element.value
+      )      
     }
   }
   
