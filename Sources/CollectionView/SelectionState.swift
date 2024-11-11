@@ -95,7 +95,8 @@ public enum SelectionStateContainers {
   
   public struct Single<Item: Identifiable>: SelectionState {
     
-    private let selected: Item.ID?
+    public let selected: Item.ID?
+    
     private let onChange: (_ selected: Item?) -> Void
     
     public init(
@@ -126,8 +127,10 @@ public enum SelectionStateContainers {
   
   public struct Multiple<Item: Identifiable>: SelectionState {
     
-    private let selected: Set<Item.ID>
-    private let canMoreSelect: Bool
+    public let selected: Set<Item.ID>
+    
+    public let canMoreSelect: Bool
+    
     private let onChange: (_ selected: Item, _ action: SelectAction) -> Void
     
     public init(
