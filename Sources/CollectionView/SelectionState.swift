@@ -5,26 +5,26 @@ public enum SelectAction {
   case deselected
 }
 
-public protocol SelectionState<Item> {
+public protocol SelectionState<Identifier> {
   
-  associatedtype Item: Identifiable
+  associatedtype Identifier: Hashable
   
   /// Returns whether the item is selected or not
-  func isSelected(for id: Item.ID) -> Bool
+  func isSelected(for id: Identifier) -> Bool
   
   /// Returns whether the item is enabled to be selected or not
-  func isEnabled(for id: Item.ID) -> Bool
+  func isEnabled(for id: Identifier) -> Bool
   
   /// Update the selection state
-  func update(isSelected: Bool, for item: Item)
+  func update(isSelected: Bool, for identifier: Identifier)
 }
 
 extension SelectionState {
   
-  public func applyEnvironments<Body: View>(for body: Body, item: Item) -> some View {
-   
-    let isSelected: Bool = isSelected(for: item.id)
-    let isDisabled: Bool = !isEnabled(for: item.id)
+  public func applyEnvironments<Body: View>(for body: Body, identifier: Identifier) -> some View {
+    
+    let isSelected: Bool = isSelected(for: identifier)
+    let isDisabled: Bool = !isEnabled(for: identifier)
     
     return body
       .disabled(isDisabled)
@@ -32,7 +32,7 @@ extension SelectionState {
       .environment(
         \.collectionView_updateSelection,
          { isSelected in
-           self.update(isSelected: isSelected, for: item)
+           self.update(isSelected: isSelected, for: identifier)
          }
       )    
   }
@@ -40,22 +40,22 @@ extension SelectionState {
 }
 
 extension SelectionState {
-      
-  public static func single<Item: Identifiable>(
-    selected: Item.ID?,
-    onChange: @escaping (_ selected: Item?) -> Void
-  ) -> Self where Self == SelectionStateContainers.Single<Item> {
+  
+  public static func single<Identifier: Hashable>(
+    selected: Identifier?,
+    onChange: @escaping (_ selected: Identifier?) -> Void
+  ) -> Self where Self == SelectionStateContainers.Single<Identifier> {
     .init(
       selected: selected,
       onChange: onChange
     )
   }
   
-  public static func multiple<Item: Identifiable>(
-    selected: Set<Item.ID>,
+  public static func multiple<Identifier: Hashable>(
+    selected: Set<Identifier>,
     canMoreSelect: Bool,
-    onChange: @escaping (_ selected: Item, _ selection: SelectAction) -> Void
-  ) -> Self where Self == SelectionStateContainers.Multiple<Item> {
+    onChange: @escaping (_ selected: Identifier, _ selection: SelectAction) -> Void
+  ) -> Self where Self == SelectionStateContainers.Multiple<Identifier> {
     .init(
       selected: selected,
       canMoreSelect: canMoreSelect,
@@ -63,10 +63,10 @@ extension SelectionState {
     )
   }
   
-  public static func disabled<Item: Identifiable>() -> Self where Self == SelectionStateContainers.Disabled<Item> {
+  public static func disabled<Identifier: Hashable>() -> Self where Self == SelectionStateContainers.Disabled<Identifier> {
     .init()    
   }
-    
+  
 }
 
 /**
@@ -74,48 +74,48 @@ extension SelectionState {
  */
 public enum SelectionStateContainers {
   
-  public struct Disabled<Item: Identifiable>: SelectionState {
+  public struct Disabled<Identifier: Hashable>: SelectionState {
     
     public init() {
       
     }
     
-    public func isSelected(for id: Item.ID) -> Bool {
+    public func isSelected(for id: Identifier) -> Bool {
       false
     }
     
-    public func isEnabled(for id: Item.ID) -> Bool {
+    public func isEnabled(for id: Identifier) -> Bool {
       true
     }    
     
-    public func update(isSelected: Bool, for item: Item) {
+    public func update(isSelected: Bool, for identifier: Identifier) {
       
     }
   }
   
-  public struct Single<Item: Identifiable>: SelectionState {
+  public struct Single<Identifier: Hashable>: SelectionState {
     
-    public let selected: Item.ID?
+    public let selected: Identifier?
     
-    private let onChange: (_ selected: Item?) -> Void
+    private let onChange: (_ selected: Identifier?) -> Void
     
     public init(
-      selected: Item.ID?,
-      onChange: @escaping (_ selected: Item?) -> Void      
+      selected: Identifier?,
+      onChange: @escaping (_ selected: Identifier?) -> Void
     ) {
       self.selected = selected
       self.onChange = onChange
     }
     
-    public func isSelected(for id: Item.ID) -> Bool {
+    public func isSelected(for id: Identifier) -> Bool {
       self.selected == id
     }
     
-    public func isEnabled(for id: Item.ID) -> Bool {
+    public func isEnabled(for id: Identifier) -> Bool {
       return true
     }
     
-    public func update(isSelected: Bool, for item: Item) {
+    public func update(isSelected: Bool, for item: Identifier) {
       if isSelected {
         onChange(item)
       } else {
@@ -125,40 +125,40 @@ public enum SelectionStateContainers {
     
   }
   
-  public struct Multiple<Item: Identifiable>: SelectionState {
+  public struct Multiple<Identifier: Hashable>: SelectionState {
     
-    public let selected: Set<Item.ID>
+    public let selected: Set<Identifier>
     
     public let canMoreSelect: Bool
     
-    private let onChange: (_ selected: Item, _ action: SelectAction) -> Void
+    private let onChange: (_ selected: Identifier, _ action: SelectAction) -> Void
     
     public init(
-      selected: Set<Item.ID>,
+      selected: Set<Identifier>,
       canMoreSelect: Bool,
-      onChange: @escaping (_ selected: Item, _ action: SelectAction) -> Void      
+      onChange: @escaping (_ selected: Identifier, _ action: SelectAction) -> Void
     ) {
       self.selected = selected
       self.canMoreSelect = canMoreSelect
       self.onChange = onChange                  
     }
     
-    public func isSelected(for id: Item.ID) -> Bool {
+    public func isSelected(for id: Identifier) -> Bool {
       self.selected.contains(id)
     }
     
-    public func isEnabled(for id: Item.ID) -> Bool {
+    public func isEnabled(for id: Identifier) -> Bool {
       if isSelected(for: id) {
         return true
       }
       return canMoreSelect
     }
     
-    public func update(isSelected: Bool, for item: Item) {
+    public func update(isSelected: Bool, for identifier: Identifier) {
       if isSelected {
-        onChange(item, .selected)
+        onChange(identifier, .selected)
       } else {
-        onChange(item, .deselected)
+        onChange(identifier, .deselected)
       }
     }
   }

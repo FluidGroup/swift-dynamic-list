@@ -31,10 +31,11 @@ struct BookCollectionViewSingleSection: View, PreviewProvider {
           SelectableForEach(
             data: Item.mock(),
             selection: .single(
-              selected: selected?.id,
+              selected: selected,
               onChange: { e in
                 selected = e
               }),
+            selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
             }
@@ -69,10 +70,11 @@ struct BookCollectionViewSingleSectionNoSeparator: View, PreviewProvider {
           SelectableForEach(
             data: Item.mock(),
             selection: .single(
-              selected: selected?.id,
+              selected: selected,
               onChange: { e in
                 selected = e
               }),
+            selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
             }
@@ -116,10 +118,11 @@ struct BookCollectionViewCombined: View, PreviewProvider {
           SelectableForEach(
             data: Item.mock(10),
             selection: .single(
-              selected: selected?.id,
+              selected: selected,
               onChange: { e in
                 selected = e
               }),
+            selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
             }
@@ -130,10 +133,11 @@ struct BookCollectionViewCombined: View, PreviewProvider {
           SelectableForEach(
             data: Item.mock(10),
             selection: .single(
-              selected: selected2?.id,
+              selected: selected2,
               onChange: { e in
                 selected2 = e
               }),
+            selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
             }
@@ -170,10 +174,11 @@ struct BookCollectionViewCombined: View, PreviewProvider {
           SelectableForEach(
             data: Item.mock(),
             selection: .single(
-              selected: selected?.id,
+              selected: selected,
               onChange: { e in
                 selected = e
               }),
+            selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
             }
@@ -210,11 +215,12 @@ struct BookCollectionViewCombined: View, PreviewProvider {
               onChange: { e, action in
                 switch action {
                 case .selected:
-                  selected.insert(e.id)
+                  selected.insert(e)
                 case .deselected:
-                  selected.remove(e.id)
+                  selected.remove(e)
                 }
               }),
+            selectionIdentifier: \.id,
             cell: { index, item in
               Cell(index: index, item: item)
             }
@@ -248,11 +254,12 @@ struct BookPlatformList: View, PreviewProvider {
           SelectableForEach(
             data: Item.mock(),
             selection: .single(
-              selected: selected?.id,
+              selected: selected,
               onChange: { e in
                 selected = e
               }
             ),
+            selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
             }
@@ -308,10 +315,11 @@ struct BookPlatformList: View, PreviewProvider {
       SelectableForEach(
         data: Item.mock(10),
         selection: .single(
-          selected: selected?.id,
+          selected: selected,
           onChange: { e in
             selected = e
           }),
+        selectionIdentifier: \.self,
         cell: { index, item in
           Cell(index: index, item: item)
         }

@@ -3,7 +3,7 @@
 
 import SwiftUI
 
-struct Item: Identifiable {
+struct Item: Identifiable, Hashable {
   var id: Int
   var title: String
   

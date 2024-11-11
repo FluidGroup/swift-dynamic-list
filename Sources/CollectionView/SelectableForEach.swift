@@ -13,32 +13,43 @@ import IndexedCollection
 public struct SelectableForEach<
   Data: RandomAccessCollection,
   Cell: View,
-  _Selection: SelectionState<Data.Element>
+  _Selection: SelectionState
 >: View where Data.Element: Identifiable {
   
   public let data: Data
   public let selection: _Selection
+  public let selectionIdentifier: KeyPath<Data.Element, _Selection.Identifier>
   private let cell: (Data.Index, Data.Element) -> Cell
   
   public init(
     data: Data,
     selection: _Selection,
+    selectionIdentifier: KeyPath<Data.Element, _Selection.Identifier>,
     cell: @escaping (Data.Index, Data.Element) -> Cell
   ) {
     self.data = data
     self.cell = cell
+    self.selectionIdentifier = selectionIdentifier
     self.selection = selection
   }
   
+  public init(
+    data: Data,
+    selection: _Selection,
+    cell: @escaping (Data.Index, Data.Element) -> Cell
+  ) where _Selection.Identifier == Data.Element.ID {
+    self.data = data
+    self.cell = cell
+    self.selectionIdentifier = \.id
+    self.selection = selection
+  }
+        
   public var body: some View {
     ForEach(IndexedCollection(data)) { element in
-      
-      let isSelected: Bool = selection.isSelected(for: element.value.id)
-      let isDisabled: Bool = !selection.isEnabled(for: element.id)
-      
+            
       selection.applyEnvironments(
         for: cell(element.index, element.value), 
-        item: element.value
+        identifier: element.value[keyPath: selectionIdentifier]
       )      
     }
   }
