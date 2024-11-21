@@ -53,12 +53,12 @@ extension SelectionState {
   
   public static func multiple<Identifier: Hashable>(
     selected: Set<Identifier>,
-    canMoreSelect: Bool,
+    canSelectMore: Bool,
     onChange: @escaping (_ selected: Identifier, _ selection: SelectAction) -> Void
   ) -> Self where Self == SelectionStateContainers.Multiple<Identifier> {
     .init(
       selected: selected,
-      canMoreSelect: canMoreSelect,
+      canMoreSelect: canSelectMore,
       onChange: onChange
     )
   }
