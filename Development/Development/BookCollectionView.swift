@@ -211,7 +211,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
             data: Item.mock(),
             selection: .multiple(
               selected: selected,
-              canMoreSelect: selected.count < 3,
+              canSelectMore: selected.count < 3,
               onChange: { e, action in
                 switch action {
                 case .selected:
