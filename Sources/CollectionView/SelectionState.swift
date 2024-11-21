@@ -129,7 +129,7 @@ public enum SelectionStateContainers {
     
     public let selected: Set<Identifier>
     
-    public let canMoreSelect: Bool
+    public let canSelectMore: Bool
     
     private let onChange: (_ selected: Identifier, _ action: SelectAction) -> Void
     
@@ -139,7 +139,7 @@ public enum SelectionStateContainers {
       onChange: @escaping (_ selected: Identifier, _ action: SelectAction) -> Void
     ) {
       self.selected = selected
-      self.canMoreSelect = canMoreSelect
+      self.canSelectMore = canMoreSelect
       self.onChange = onChange                  
     }
     
@@ -151,7 +151,7 @@ public enum SelectionStateContainers {
       if isSelected(for: id) {
         return true
       }
-      return canMoreSelect
+      return canSelectMore
     }
     
     public func update(isSelected: Bool, for identifier: Identifier) {
