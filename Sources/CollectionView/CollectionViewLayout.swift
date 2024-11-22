@@ -23,6 +23,22 @@ public enum CollectionViewLayouts {
       }
     }
   }
+  
+  public struct PlatformListVanilla: CollectionViewLayoutType {
+    
+    public init() {
+    }
+    
+    public func body(content: Content) -> some View {
+      SwiftUI.List {
+        content
+          .listSectionSeparator(.hidden)
+          .listRowSeparator(.hidden)
+          .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+      }     
+      .listStyle(.plain)
+    }
+  }
 
   public struct List<Separator: View>: CollectionViewLayoutType {
 
