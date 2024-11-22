@@ -19,7 +19,9 @@ struct BookCollectionViewSingleSection: View, PreviewProvider {
 
     var body: some View {
       CollectionView(
-        layout: .list.separator(
+        layout: .list
+          .contentPadding(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+          .separator(
           separator: {
             RoundedRectangle(cornerRadius: 8)
               .fill(.secondary)
@@ -249,7 +251,7 @@ struct BookPlatformList: View, PreviewProvider {
 
     var body: some View {
       CollectionView(
-        layout: CollectionViewLayouts.PlatformList(),
+        layout: CollectionViewLayouts.PlatformListVanilla(),
         content: {
           SelectableForEach(
             data: Item.mock(),
@@ -268,6 +270,10 @@ struct BookPlatformList: View, PreviewProvider {
       )
     }
   }
+}
+
+#Preview("PlatformList") {
+  BookPlatformList()
 }
 
 #Preview {
