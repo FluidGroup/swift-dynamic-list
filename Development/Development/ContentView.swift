@@ -32,6 +32,10 @@ struct ContentView: View {
         NavigationLink("CollectionView") {
           BookCollectionViewSingleSection()
         }
+        
+        NavigationLink("ScrollView") {
+          OnAdditionalLoading_Previews()
+        }
       }
     }
   }
