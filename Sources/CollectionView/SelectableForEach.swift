@@ -13,18 +13,18 @@ import IndexedCollection
 public struct SelectableForEach<
   Data: RandomAccessCollection,
   Cell: View,
-  _Selection: SelectionState
+  Selection: SelectionState
 >: View where Data.Element: Identifiable {
   
   public let data: Data
-  public let selection: _Selection
-  public let selectionIdentifier: KeyPath<Data.Element, _Selection.Identifier>
+  public let selection: Selection
+  public let selectionIdentifier: KeyPath<Data.Element, Selection.Identifier>
   private let cell: (Data.Index, Data.Element) -> Cell
   
   public init(
     data: Data,
-    selection: _Selection,
-    selectionIdentifier: KeyPath<Data.Element, _Selection.Identifier>,
+    selection: Selection,
+    selectionIdentifier: KeyPath<Data.Element, Selection.Identifier>,
     cell: @escaping (Data.Index, Data.Element) -> Cell
   ) {
     self.data = data
@@ -35,9 +35,9 @@ public struct SelectableForEach<
   
   public init(
     data: Data,
-    selection: _Selection,
+    selection: Selection,
     cell: @escaping (Data.Index, Data.Element) -> Cell
-  ) where _Selection.Identifier == Data.Element.ID {
+  ) where Selection.Identifier == Data.Element.ID {
     self.data = data
     self.cell = cell
     self.selectionIdentifier = \.id
