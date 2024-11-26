@@ -25,7 +25,7 @@ public struct SelectableForEach<
     data: Data,
     selection: Selection,
     selectionIdentifier: KeyPath<Data.Element, Selection.Identifier>,
-    cell: @escaping (Data.Index, Data.Element) -> Cell
+    @ViewBuilder cell: @escaping (Data.Index, Data.Element) -> Cell
   ) {
     self.data = data
     self.cell = cell
@@ -36,7 +36,7 @@ public struct SelectableForEach<
   public init(
     data: Data,
     selection: Selection,
-    cell: @escaping (Data.Index, Data.Element) -> Cell
+    @ViewBuilder cell: @escaping (Data.Index, Data.Element) -> Cell
   ) where Selection.Identifier == Data.Element.ID {
     self.data = data
     self.cell = cell
