@@ -10,10 +10,10 @@ public protocol SelectionState<Identifier> {
   associatedtype Identifier: Hashable
   
   /// Returns whether the item is selected or not
-  func isSelected(for id: Identifier) -> Bool
+  func isSelected(for identifier: Identifier) -> Bool
   
   /// Returns whether the item is enabled to be selected or not
-  func isEnabled(for id: Identifier) -> Bool
+  func isEnabled(for identifier: Identifier) -> Bool
   
   /// Update the selection state
   func update(isSelected: Bool, for identifier: Identifier)
