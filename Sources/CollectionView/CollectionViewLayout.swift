@@ -41,8 +41,11 @@ public enum CollectionViewLayouts {
   }
 
   public struct List<Separator: View>: CollectionViewLayoutType {
+    
 
     public let direction: CollectionViewListDirection
+    
+    public var showsIndicators: Bool = false
     
     public var contentPadding: EdgeInsets
 
@@ -83,12 +86,19 @@ public enum CollectionViewLayouts {
       
       return self
     }
-
+    
+    public consuming func showsIndicators(_ showsIndicators: Bool) -> Self {
+      
+      self.showsIndicators = showsIndicators
+      
+      return self
+    }
+    
     public func body(content: Content) -> some View {
       switch direction {
       case .vertical:
 
-        ScrollView(.vertical) {
+        ScrollView(.vertical, showsIndicators: showsIndicators) {
 
           if separator is EmptyView {
             LazyVStack {
@@ -114,7 +124,7 @@ public enum CollectionViewLayouts {
 
       case .horizontal:
 
-        ScrollView(.horizontal) {
+        ScrollView(.horizontal, showsIndicators: showsIndicators) {
 
           if separator is EmptyView {
             LazyHStack {
