@@ -1,6 +1,7 @@
 import Combine
 import SwiftUI
 import SwiftUIIntrospect
+import os.lock
 
 extension ScrollView {
 
@@ -8,13 +9,15 @@ extension ScrollView {
   public func onAdditionalLoading(
     isEnabled: Bool = true,
     leadingScreens: CGFloat = 2,
+    isLoading: Binding<Bool>,
     _ handler: @MainActor @escaping () async -> Void
   ) -> some View {
 
     modifier(
       _Modifier(
         isEnabled: isEnabled,
-        leadingScreens: leadingScreens,
+        leadingScreens: leadingScreens, 
+        isLoading: isLoading,
         handler: handler
       )
     )
@@ -25,7 +28,7 @@ extension ScrollView {
 
 private final class Controller: ObservableObject {
   var scrollViewSubscription: AnyCancellable?
-  var currentLoadingTask: Task<Void, Never>?
+  let currentLoadingTask: OSAllocatedUnfairLock<Task<Void, Never>?> = .init(initialState: nil)
 }
 
 private struct _Modifier: ViewModifier {
@@ -34,14 +37,17 @@ private struct _Modifier: ViewModifier {
 
   private let isEnabled: Bool
   private let leadingScreens: CGFloat
+  private let isLoading: Binding<Bool>
   private let handler: @MainActor () async -> Void
 
   nonisolated init(
     isEnabled: Bool,
     leadingScreens: CGFloat,
+    isLoading: Binding<Bool>,
     handler: @MainActor @escaping () async -> Void
   ) {
     self.isEnabled = isEnabled
+    self.isLoading = isLoading
     self.leadingScreens = leadingScreens
     self.handler = handler
   }
@@ -101,17 +107,32 @@ private struct _Modifier: ViewModifier {
     guard isEnabled else {
       return
     }
+    
+    let taskBox = controller.currentLoadingTask
 
-    guard controller.currentLoadingTask == nil else {
-      return
-    }
-
-    let task = Task { @MainActor [weak controller] in
-      await handler()
-      controller?.currentLoadingTask = nil
-    }
-
-    controller.currentLoadingTask = task
+    taskBox.withLockUnchecked { currentTask in
+      
+      guard currentTask == nil else {
+        return 
+      }
+      
+      isLoading.wrappedValue = true
+            
+      let task = Task { @MainActor in
+        await withTaskCancellationHandler { 
+          await handler()
+          isLoading.wrappedValue = false
+          taskBox.withLock { $0 = nil }
+        } onCancel: { 
+          isLoading.wrappedValue = false
+          taskBox.withLock { $0 = nil }
+        }    
+      }
+      
+      currentTask = task
+      
+    }  
+  
   }
 
 }
