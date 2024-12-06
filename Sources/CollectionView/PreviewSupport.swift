@@ -34,13 +34,14 @@ struct Cell: View {
   var body: some View {
     HStack {
       Circle()
-        .fill(.red)
+        .fill(.purple)
         .frame(width: 20, height: 20)
         .opacity(isSelected ? 1 : 0.2)
-      Text(index.description)
       Text(item.title)
-      Text("isEnabled: \(isEnabled)")
+      Spacer()
     }
+    .padding(.horizontal, 20)
+    .opacity(isEnabled ? 1 : 0.2)
     ._onButtonGesture(
       pressing: { _ in },
       perform: {

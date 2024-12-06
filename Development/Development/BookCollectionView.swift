@@ -22,13 +22,13 @@ struct BookCollectionViewSingleSection: View, PreviewProvider {
         layout: .list
           .contentPadding(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
           .separator(
-          separator: {
-            RoundedRectangle(cornerRadius: 8)
-              .fill(.secondary)
-              .frame(height: 8)
-              .padding(.horizontal, 20)
-          }
-        ),
+            separator: {
+              RoundedRectangle(cornerRadius: 8)
+                .fill(.secondary)
+                .frame(height: 8)
+                .padding(.horizontal, 20)
+            }
+          ),
         content: {
           SelectableForEach(
             data: Item.mock(),
@@ -44,10 +44,10 @@ struct BookCollectionViewSingleSection: View, PreviewProvider {
           )
         }
       )
-      
+
     }
   }
-  
+
 }
 
 struct BookCollectionViewSingleSectionNoSeparator: View, PreviewProvider {
@@ -169,7 +169,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
         layout: .list.separator {
           RoundedRectangle(cornerRadius: 8)
             .fill(.secondary)
-            .frame(height: 8)
+            .frame(height: 2)
             .padding(.horizontal, 20)
         },
         content: {
@@ -185,7 +185,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
               Cell(index: index, item: item)
             }
           )
-        }        
+        }
       )
     }
   }
@@ -205,7 +205,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
         layout: .list.separator {
           RoundedRectangle(cornerRadius: 8)
             .fill(.secondary)
-            .frame(height: 8)
+            .frame(height: 2)
             .padding(.horizontal, 20)
         },
         content: {
@@ -227,7 +227,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
               Cell(index: index, item: item)
             }
           )
-        }       
+        }
       )
     }
   }
@@ -311,28 +311,110 @@ struct BookPlatformList: View, PreviewProvider {
   return BookList()
 }
 
-#Preview("SelectableForEach") {
+#Preview("Inline Single selection") {
 
-  struct Book: View {
+  struct Preview: View {
 
-    @State var selected: Item?
+    @State var selected: Item.ID?
 
     var body: some View {
+
       SelectableForEach(
         data: Item.mock(10),
         selection: .single(
           selected: selected,
-          onChange: { e in
-            selected = e
+          onChange: { selected in
+            self.selected = selected
           }),
-        selectionIdentifier: \.self,
+        selectionIdentifier: \.id,
         cell: { index, item in
           Cell(index: index, item: item)
         }
       )
+
     }
   }
 
-  return Book()
+  return Preview()
+}
 
+#Preview("Inline Multiple selection") {
+
+  struct Preview: View {
+
+    @State var selected: Set<Item.ID> = .init()
+
+    var body: some View {
+
+      SelectableForEach(
+        data: Item.mock(10),
+        selection: .multiple(
+          selected: selected,
+          canSelectMore: selected.count < 3,
+          onChange: { e, action in
+            switch action {
+            case .selected:
+              selected.insert(e)
+            case .deselected:
+              selected.remove(e)
+            }
+          }),
+        selectionIdentifier: \.id,
+        cell: { index, item in
+          Cell(index: index, item: item)
+        }
+      )
+
+    }
+  }
+
+  return Preview()
+}
+
+#Preview("Scrollable Multiple selection") {
+  
+  struct Preview: View {
+    
+    @State var selected: Set<Item.ID> = .init()
+    
+    var body: some View {
+      
+      ScrollView {        
+        
+        header
+          .padding(.horizontal, 20)
+        
+        SelectableForEach(
+          data: Item.mock(10),
+          selection: .multiple(
+            selected: selected,
+            canSelectMore: selected.count < 3,
+            onChange: { e, action in
+              switch action {
+              case .selected:
+                selected.insert(e)
+              case .deselected:
+                selected.remove(e)
+              }
+            }),
+          selectionIdentifier: \.id,
+          cell: { index, item in
+            Cell(index: index, item: item)
+          }
+        )
+      }
+      
+    }
+    
+    private var header: some View {
+      ZStack {      
+        RoundedRectangle(cornerRadius: 16)
+          .fill(Color(white: 0, opacity: 0.2))
+        Text("Header")
+      }
+      .frame(height: 120)
+    }
+  }
+  
+  return Preview()
 }
