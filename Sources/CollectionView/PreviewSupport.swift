@@ -41,7 +41,7 @@ struct Cell: View {
       Spacer()
     }
     .padding(.horizontal, 20)
-    .opacity(isEnabled ? 1 : 0.2)
+    .opacity(isEnabled ? 1 : 0.2)   
     ._onButtonGesture(
       pressing: { _ in },
       perform: {
