@@ -1,5 +1,5 @@
 {
-  "originHash" : "6f507385589ccb1437137d0b13521704ef870cd7b54f66ab330ab4ffe7b0fd8b",
+  "originHash" : "b7bce46448d0e06c904fcba0f0481bdb3de7ca4595549fef018391002bba99b9",
   "pins" : [
     {
       "identity" : "swift-indexed-collection",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "9b17bf06eae73fee93dae9a0fa6de2e33900d9c5",
         "version" : "0.2.1"
+      }
+    },
+    {
+      "identity" : "swift-with-prerender",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FluidGroup/swift-with-prerender",
+      "state" : {
+        "revision" : "83ea5d0f5a9fd0082c61e090f4b656c7b58ee0be",
+        "version" : "1.0.0"
       }
     },
     {
