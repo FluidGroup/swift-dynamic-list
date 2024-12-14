@@ -58,7 +58,7 @@ extension SelectionState {
   ) -> Self where Self == SelectionStateContainers.Multiple<Identifier> {
     .init(
       selected: selected,
-      canMoreSelect: canSelectMore,
+      canSelectMore: canSelectMore,
       onChange: onChange
     )
   }
@@ -135,11 +135,11 @@ public enum SelectionStateContainers {
     
     public init(
       selected: Set<Identifier>,
-      canMoreSelect: Bool,
+      canSelectMore: Bool,
       onChange: @escaping (_ selected: Identifier, _ action: SelectAction) -> Void
     ) {
       self.selected = selected
-      self.canSelectMore = canMoreSelect
+      self.canSelectMore = canSelectMore
       self.onChange = onChange                  
     }
     
