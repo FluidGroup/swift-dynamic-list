@@ -1,5 +1,5 @@
 {
-  "originHash" : "e89878bf140720e29e318b93f44c5d0df6cceb734010ef6111491735cb630699",
+  "originHash" : "5262eaf10f856dee60593c62bee81f6931c0200844ea3211d6cd5f1c6b6fede5",
   "pins" : [
     {
       "identity" : "compositionkit",
@@ -47,6 +47,15 @@
       }
     },
     {
+      "identity" : "swift-with-prerender",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FluidGroup/swift-with-prerender",
+      "state" : {
+        "revision" : "83ea5d0f5a9fd0082c61e090f4b656c7b58ee0be",
+        "version" : "1.0.0"
+      }
+    },
+    {
       "identity" : "swiftui-async-multiplex-image",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/FluidGroup/swiftui-async-multiplex-image",
@@ -62,6 +71,15 @@
       "state" : {
         "revision" : "9c83f8995f9e5efc29db2fca4b9ff058283f1603",
         "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "swiftui-introspect",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/siteline/swiftui-introspect.git",
+      "state" : {
+        "revision" : "807f73ce09a9b9723f12385e592b4e0aaebd3336",
+        "version" : "1.3.0"
       }
     },
     {
