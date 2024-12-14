@@ -2,6 +2,7 @@ import Combine
 import SwiftUI
 import SwiftUIIntrospect
 import os.lock
+import WithPrerender
 
 extension ScrollView {
 
@@ -16,7 +17,7 @@ extension ScrollView {
     modifier(
       _Modifier(
         isEnabled: isEnabled,
-        leadingScreens: leadingScreens, 
+        leadingScreens: leadingScreens,
         isLoading: isLoading,
         handler: handler
       )
@@ -55,18 +56,20 @@ private struct _Modifier: ViewModifier {
   func body(content: Content) -> some View {
 
     if #available(iOS 18, *) {
-      content.onScrollGeometryChange(for: Bool.self) { geometry in
+      content.onScrollGeometryChange(for: ScrollGeometry.self) { geometry in
 
-        return calculate(
+        return geometry
+
+      } action: { _, geometry in
+
+        let triggers = calculate(
           contentOffsetY: geometry.contentOffset.y,
           boundsHeight: geometry.containerSize.height,
           contentSizeHeight: geometry.contentSize.height,
           leadingScreens: leadingScreens
         )
 
-      } action: { oldValue, newValue in
-
-        if newValue {
+        if triggers {
           MainActor.assumeIsolated {
             trigger()
           }
@@ -94,7 +97,7 @@ private struct _Modifier: ViewModifier {
           )
 
           if triggers {
-            trigger()        
+            trigger()
           }
 
         }
@@ -107,32 +110,34 @@ private struct _Modifier: ViewModifier {
     guard isEnabled else {
       return
     }
-    
-    let taskBox = controller.currentLoadingTask
 
+    let taskBox = controller.currentLoadingTask
+    
     taskBox.withLockUnchecked { currentTask in
-      
+
       guard currentTask == nil else {
-        return 
+        return
       }
-      
-      isLoading.wrappedValue = true
-            
+
+      withPrerender {        
+        isLoading.wrappedValue = true
+      }
+
       let task = Task { @MainActor in
-        await withTaskCancellationHandler { 
+        await withTaskCancellationHandler {
           await handler()
           isLoading.wrappedValue = false
           taskBox.withLock { $0 = nil }
-        } onCancel: { 
+        } onCancel: {
           isLoading.wrappedValue = false
           taskBox.withLock { $0 = nil }
-        }    
+        }
       }
-      
+
       currentTask = task
-      
-    }  
-  
+
+    }
+
   }
 
 }
