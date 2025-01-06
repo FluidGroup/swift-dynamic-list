@@ -156,10 +156,76 @@ public enum CollectionViewLayouts {
   }
 
   public struct Grid: CollectionViewLayoutType {
+    
+    public let gridItems: [GridItem]
 
-    public func body(content: Content) -> some View {
-      // FIXME:
+    public let direction: CollectionViewListDirection
+
+    public var showsIndicators: Bool = false
+    
+    public var contentPadding: EdgeInsets
+    
+    public init(
+      gridItems: [GridItem],
+      direction: CollectionViewListDirection,
+      contentPadding: EdgeInsets = .init()
+    ) {
+      self.gridItems = gridItems
+      self.direction = direction
+      self.contentPadding = contentPadding
     }
+    
+    public consuming func contentPadding(_ contentPadding: EdgeInsets) -> Self {
+      
+      self.contentPadding = contentPadding
+      
+      return self
+    }
+    
+    public consuming func showsIndicators(_ showsIndicators: Bool) -> Self {
+      
+      self.showsIndicators = showsIndicators
+      
+      return self
+    }
+    
+    public func body(content: Content) -> some View {
+      switch direction {
+      case .vertical:
+        
+        ScrollView(.vertical, showsIndicators: showsIndicators) {
+          
+          UnaryViewReader(readingContent: content) { children in
+            LazyVGrid(
+              columns: gridItems
+            ) {
+              ForEach(children) { child in
+                child
+              }
+            }
+          }
+          .padding(contentPadding)
+        }
+        
+      case .horizontal:
+        
+        ScrollView(.horizontal, showsIndicators: showsIndicators) {
+          
+          UnaryViewReader(readingContent: content) { children in
+            LazyHGrid(
+              rows: gridItems
+            ) {
+              ForEach(children) { child in
+                child
+              }
+            }
+          }
+          .padding(contentPadding)
+        }
+        
+      }
+    }
+
   }
 
 }
@@ -177,7 +243,12 @@ extension CollectionViewLayoutType where Self == CollectionViewLayouts.List<Empt
 extension CollectionViewLayoutType where Self == CollectionViewLayouts.Grid {
 
   public static var grid: Self {
-    CollectionViewLayouts.Grid()
+    CollectionViewLayouts.Grid(
+      gridItems: [
+        .init(.adaptive(minimum: 100))
+      ],
+      direction: .vertical
+    )
   }
 
 }
