@@ -19,8 +19,40 @@ public struct CollectionView<
   }
 
   public var body: some View {
-    content
-      .modifier(layout)
+    ModifiedContent(
+      content: content,
+      modifier: layout
+    )    
   }
 
 }
+
+#if canImport(ScrollTracking)
+
+@_spi(Internal)
+import ScrollTracking
+
+extension CollectionView {
+   
+  @ViewBuilder
+  public func onAdditionalLoading(
+    isEnabled: Bool = true,
+    leadingScreens: Double = 2,
+    isLoading: Binding<Bool>,
+    _ handler: @MainActor @escaping () async -> Void
+  ) -> some View {
+    
+    self.onAdditionalLoading( 
+      additionalLoading: .init(
+        isEnabled: isEnabled,
+        leadingScreens: leadingScreens,
+        isLoading: isLoading,
+        handler: handler
+      )
+    )
+    
+  }
+  
+}
+
+#endif

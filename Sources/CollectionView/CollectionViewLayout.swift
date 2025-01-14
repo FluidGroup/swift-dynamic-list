@@ -23,30 +23,29 @@ public enum CollectionViewLayouts {
       }
     }
   }
-  
+
   public struct PlatformListVanilla: CollectionViewLayoutType {
-    
+
     public init() {
     }
-    
+
     public func body(content: Content) -> some View {
       SwiftUI.List {
         content
           .listSectionSeparator(.hidden)
           .listRowSeparator(.hidden)
           .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-      }     
+      }
       .listStyle(.plain)
     }
   }
 
   public struct List<Separator: View>: CollectionViewLayoutType {
-    
 
     public let direction: CollectionViewListDirection
-    
+
     public var showsIndicators: Bool = false
-    
+
     public var contentPadding: EdgeInsets
 
     private let separator: Separator
@@ -79,21 +78,21 @@ public enum CollectionViewLayouts {
         separator: separator
       )
     }
-    
+
     public consuming func contentPadding(_ contentPadding: EdgeInsets) -> Self {
-      
+
       self.contentPadding = contentPadding
-      
+
       return self
     }
-    
+
     public consuming func showsIndicators(_ showsIndicators: Bool) -> Self {
-      
+
       self.showsIndicators = showsIndicators
-      
+
       return self
     }
-    
+
     public func body(content: Content) -> some View {
       switch direction {
       case .vertical:
@@ -164,17 +163,22 @@ public enum CollectionViewLayouts {
     public var showsIndicators: Bool = false
     
     public var contentPadding: EdgeInsets
+
+    public var spacing: CGFloat?
     
     public init(
       gridItems: [GridItem],
       direction: CollectionViewListDirection,
+      spacing: CGFloat? = nil,
       contentPadding: EdgeInsets = .init()
     ) {
-      self.gridItems = gridItems
       self.direction = direction
       self.contentPadding = contentPadding
+      self.gridItems = gridItems
+      self.spacing = spacing
+      self.contentPadding = contentPadding
     }
-    
+
     public consuming func contentPadding(_ contentPadding: EdgeInsets) -> Self {
       
       self.contentPadding = contentPadding
@@ -194,31 +198,23 @@ public enum CollectionViewLayouts {
       case .vertical:
         
         ScrollView(.vertical, showsIndicators: showsIndicators) {
-          
-          UnaryViewReader(readingContent: content) { children in
-            LazyVGrid(
-              columns: gridItems
-            ) {
-              ForEach(children) { child in
-                child
-              }
-            }
-          }
+          LazyVGrid(
+            columns: gridItems,
+            spacing: spacing
+          ) {
+            content
+          }          
           .padding(contentPadding)
         }
         
       case .horizontal:
         
-        ScrollView(.horizontal, showsIndicators: showsIndicators) {
-          
-          UnaryViewReader(readingContent: content) { children in
-            LazyHGrid(
-              rows: gridItems
-            ) {
-              ForEach(children) { child in
-                child
-              }
-            }
+        ScrollView(.horizontal, showsIndicators: showsIndicators) {          
+          LazyHGrid(
+            rows: gridItems,
+            spacing: spacing
+          ) {
+            content
           }
           .padding(contentPadding)
         }
@@ -242,12 +238,15 @@ extension CollectionViewLayoutType where Self == CollectionViewLayouts.List<Empt
 
 extension CollectionViewLayoutType where Self == CollectionViewLayouts.Grid {
 
-  public static var grid: Self {
+  public static func grid(
+    gridItems: [GridItem],
+    direction: CollectionViewListDirection,
+    spacing: CGFloat? = nil
+  ) -> Self {
     CollectionViewLayouts.Grid(
-      gridItems: [
-        .init(.adaptive(minimum: 100))
-      ],
-      direction: .vertical
+      gridItems: gridItems,
+      direction: direction,
+      spacing: spacing
     )
   }
 
