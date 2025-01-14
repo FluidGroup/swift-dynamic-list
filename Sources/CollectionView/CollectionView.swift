@@ -19,8 +19,10 @@ public struct CollectionView<
   }
 
   public var body: some View {
-    content
-      .modifier(layout)
+    ModifiedContent(
+      content: content,
+      modifier: layout
+    )    
   }
 
 }
