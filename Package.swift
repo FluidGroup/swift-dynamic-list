@@ -37,7 +37,8 @@ let package = Package(
     .target(
       name: "CollectionView",
       dependencies: [
-        .product(name: "IndexedCollection", package: "swift-indexed-collection"),
+        "ScrollTracking",
+        .product(name: "IndexedCollection", package: "swift-indexed-collection"),        
       ]
     ),
     .target(

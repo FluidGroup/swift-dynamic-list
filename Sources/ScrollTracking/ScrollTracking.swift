@@ -4,27 +4,66 @@ import SwiftUIIntrospect
 import os.lock
 import WithPrerender
 
+extension View {
+  
+  @_spi(Internal)
+  public func onAdditionalLoading(
+    additionalLoading: AdditionalLoading
+  ) -> some View {
+    
+    modifier(
+      _Modifier(
+        additionalLoading: additionalLoading
+      )
+    )
+    
+  }
+}
+
 extension ScrollView {
 
   @ViewBuilder
   public func onAdditionalLoading(
     isEnabled: Bool = true,
-    leadingScreens: CGFloat = 2,
+    leadingScreens: Double = 2,
     isLoading: Binding<Bool>,
-    _ handler: @MainActor @escaping () async -> Void
+    _ handler: @escaping @MainActor  () async -> Void
   ) -> some View {
 
     modifier(
       _Modifier(
-        isEnabled: isEnabled,
-        leadingScreens: leadingScreens,
-        isLoading: isLoading,
-        handler: handler
+        additionalLoading: .init(
+          isEnabled: isEnabled,
+          leadingScreens: leadingScreens,
+          isLoading: isLoading,
+          handler: handler
+        )
       )
     )
 
   }
 
+}
+
+public struct AdditionalLoading: Sendable {
+  
+  public let isEnabled: Bool
+  public let leadingScreens: Double
+  public let isLoading: Binding<Bool>
+  public let handler: @MainActor () async -> Void
+  
+  public init(
+    isEnabled: Bool,
+    leadingScreens: Double,
+    isLoading: Binding<Bool>,
+    handler: @escaping @MainActor () async -> Void
+  ) {
+    self.isEnabled = isEnabled
+    self.leadingScreens = leadingScreens
+    self.isLoading = isLoading
+    self.handler = handler
+  }
+  
 }
 
 private final class Controller: ObservableObject {
@@ -36,21 +75,12 @@ private struct _Modifier: ViewModifier {
 
   @StateObject var controller: Controller = .init()
 
-  private let isEnabled: Bool
-  private let leadingScreens: CGFloat
-  private let isLoading: Binding<Bool>
-  private let handler: @MainActor () async -> Void
+  private let additionalLoading: AdditionalLoading
 
   nonisolated init(
-    isEnabled: Bool,
-    leadingScreens: CGFloat,
-    isLoading: Binding<Bool>,
-    handler: @MainActor @escaping () async -> Void
+    additionalLoading: AdditionalLoading
   ) {
-    self.isEnabled = isEnabled
-    self.isLoading = isLoading
-    self.leadingScreens = leadingScreens
-    self.handler = handler
+    self.additionalLoading = additionalLoading
   }
 
   func body(content: Content) -> some View {
@@ -66,7 +96,7 @@ private struct _Modifier: ViewModifier {
           contentOffsetY: geometry.contentOffset.y,
           boundsHeight: geometry.containerSize.height,
           contentSizeHeight: geometry.contentSize.height,
-          leadingScreens: leadingScreens
+          leadingScreens: additionalLoading.leadingScreens
         )
 
         if triggers {
@@ -93,7 +123,7 @@ private struct _Modifier: ViewModifier {
             contentOffsetY: offset.y,
             boundsHeight: scrollView.bounds.height,
             contentSizeHeight: scrollView.contentSize.height,
-            leadingScreens: leadingScreens
+            leadingScreens: additionalLoading.leadingScreens
           )
 
           if triggers {
@@ -107,7 +137,7 @@ private struct _Modifier: ViewModifier {
 
   private func trigger() {
 
-    guard isEnabled else {
+    guard additionalLoading.isEnabled else {
       return
     }
 
@@ -120,16 +150,16 @@ private struct _Modifier: ViewModifier {
       }
 
       withPrerender {        
-        isLoading.wrappedValue = true
+        additionalLoading.isLoading.wrappedValue = true
       }
 
       let task = Task { @MainActor in
         await withTaskCancellationHandler {
-          await handler()
-          isLoading.wrappedValue = false
+          await additionalLoading.handler()
+          additionalLoading.isLoading.wrappedValue = false
           taskBox.withLock { $0 = nil }
         } onCancel: {
-          isLoading.wrappedValue = false
+          additionalLoading.isLoading.wrappedValue = false
           taskBox.withLock { $0 = nil }
         }
       }
