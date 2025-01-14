@@ -15,10 +15,16 @@ let package = Package(
     .library(
       name: "CollectionView",
       targets: ["CollectionView"]
-    )
+    ),
+    .library(
+      name: "ScrollTracking",
+      targets: ["ScrollTracking"]
+    ),
   ],
   dependencies: [
     .package(url: "https://github.com/FluidGroup/swift-indexed-collection", from: "0.2.1"),
+    .package(url: "https://github.com/siteline/swiftui-introspect", from: "1.3.0"),
+    .package(url: "https://github.com/FluidGroup/swift-with-prerender", from: "1.0.0")
   ],
   targets: [
     // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -34,9 +40,17 @@ let package = Package(
         .product(name: "IndexedCollection", package: "swift-indexed-collection"),
       ]
     ),
+    .target(
+      name: "ScrollTracking",
+      dependencies: [
+        .product(name: "SwiftUIIntrospect", package: "swiftui-introspect"),
+        .product(name: "WithPrerender", package: "swift-with-prerender"),
+      ]
+    ),
     .testTarget(
       name: "DynamicListTests",
       dependencies: ["DynamicList"]
     ),
-  ]
+  ],
+  swiftLanguageModes: [.v6]
 )
