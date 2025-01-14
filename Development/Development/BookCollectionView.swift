@@ -418,3 +418,41 @@ struct BookPlatformList: View, PreviewProvider {
   
   return Preview()
 }
+
+#Preview("Simple grid layout") {
+  
+  struct Book: View {
+    
+    @State var selected: Set<Item.ID> = .init()
+    
+    var body: some View {
+      
+      CollectionView(
+        layout: .grid,
+        content: {
+          SelectableForEach(
+            data: Item.mock(),
+            selection: .multiple(
+              selected: selected,
+              canSelectMore: selected.count < 3,
+              onChange: { e, action in
+                switch action {
+                case .selected:
+                  selected.insert(e)
+                case .deselected:
+                  selected.remove(e)
+                }
+              }
+            ),
+            selectionIdentifier: \.id,
+            cell: { index, item in
+              Cell(index: index, item: item)
+            }
+          )
+        }
+      )
+    }
+  }
+  
+  return Book()
+}
