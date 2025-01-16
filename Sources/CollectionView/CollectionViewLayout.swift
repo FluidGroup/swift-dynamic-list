@@ -1,4 +1,5 @@
 import SwiftUI
+import IndexedCollection
 
 public enum CollectionViewListDirection {
   case vertical
@@ -224,6 +225,93 @@ public enum CollectionViewLayouts {
 
   }
 
+  public struct FastGrid: CollectionViewLayoutType {
+
+    public var showsIndicators: Bool = false
+
+    public var contentPadding: EdgeInsets
+
+    public var spacing: CGFloat?
+
+    public let height: CGFloat?
+
+    public init(
+      spacing: CGFloat? = nil,
+      height: CGFloat? = nil,
+      contentPadding: EdgeInsets = .init()
+    ) {
+      self.contentPadding = contentPadding
+      self.height = height
+      self.spacing = spacing
+    }
+
+    public consuming func contentPadding(_ contentPadding: EdgeInsets) -> Self {
+
+      self.contentPadding = contentPadding
+
+      return self
+    }
+
+    public consuming func showsIndicators(_ showsIndicators: Bool) -> Self {
+
+      self.showsIndicators = showsIndicators
+
+      return self
+    }
+
+    public func body(content: Content) -> some View {
+
+      ScrollView(.vertical, showsIndicators: showsIndicators) {
+        UnaryViewReader(readingContent: content) { children in
+          let indices = children.indices
+
+          LazyVStack {
+
+            ForEach(IndexedCollection(children), id: \.id) { e in
+
+              let (index, child) = (e.index, e.value)
+
+              if index % 3 == 0 {
+
+                let first = child
+                let second = indices.contains(index + 1) ? children[index + 1] : nil
+                let third = indices.contains(index + 2) ? children[index + 2] : nil
+
+                HStack {
+                  first
+                    .layoutPriority(1)
+
+                  if let second = second {
+                    second
+                      .layoutPriority(1)
+                  } else {
+                    Spacer()
+                      .layoutPriority(1)
+                  }
+                  if let third = third {
+                    third
+                      .layoutPriority(1)
+                  } else {
+                    Spacer()
+                      .layoutPriority(1)
+                  }
+                }
+                .frame(height: height)
+
+              } else {
+                EmptyView()
+              }
+            }
+          }
+        }
+        .padding(contentPadding)
+      }
+
+
+    }
+
+  }
+
 }
 
 extension CollectionViewLayoutType where Self == CollectionViewLayouts.List<EmptyView> {
@@ -251,3 +339,15 @@ extension CollectionViewLayoutType where Self == CollectionViewLayouts.Grid {
   }
 
 }
+
+extension CollectionViewLayoutType where Self == CollectionViewLayouts.FastGrid {
+
+  public static func fastGrid(
+    spacing: CGFloat?,
+    height: CGFloat?
+  ) -> Self {
+    CollectionViewLayouts.FastGrid(spacing: spacing, height: height)
+  }
+
+}
+
