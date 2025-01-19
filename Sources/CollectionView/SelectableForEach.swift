@@ -69,6 +69,23 @@ extension EnvironmentValues {
    A closure that updates the selection state of the cell.
    Provided by the ``SelectableForEach`` view.
    */
-  @Entry public var collectionView_updateSelection: (Bool) -> Void = { _ in }
+  @Entry public var collectionView_updateSelection: UpdateSelectionAction = .init { _ in }
 }
 
+public struct UpdateSelectionAction: Equatable {
+
+  public nonisolated static func == (lhs: UpdateSelectionAction, rhs: UpdateSelectionAction) -> Bool {
+    true
+  }
+  
+  private let handler: (Bool) -> Void
+
+  nonisolated init(handler: @escaping (Bool) -> Void) {
+    self.handler = handler
+  }
+
+  func callAsFunction(_ value: Bool) {
+    handler(value)
+  }
+
+}
