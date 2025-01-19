@@ -39,7 +39,7 @@ extension CollectionView {
     isEnabled: Bool = true,
     leadingScreens: Double = 2,
     isLoading: Binding<Bool>,
-    _ handler: @MainActor @escaping () async -> Void
+    onLoad: @MainActor @escaping () async -> Void
   ) -> some View {
     
     self.onAdditionalLoading( 
@@ -47,7 +47,7 @@ extension CollectionView {
         isEnabled: isEnabled,
         leadingScreens: leadingScreens,
         isLoading: isLoading,
-        handler: handler
+        onLoad: onLoad
       )
     )
     
