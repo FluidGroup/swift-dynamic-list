@@ -8,22 +8,27 @@
 import SwiftUI
 import ScrollTracking
 
-
 struct OnAdditionalLoading_Previews: View, PreviewProvider {
-  
+
   @State var items: [Int] = (0..<100).map { $0 }
   @State var isLoading: Bool = false
-  
+
   var body: some View {
     ScrollView {
       LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
-        ForEach(items, id: \.self) { index in            
-          Text("Item \(index)")
-            .font(.title)
+        Section {
+          ForEach(items, id: \.self) { index in
+            Cell(
+              name: "Item \(index)",
+              actionHandler: {
+                print("Update \(index)")
+            })
+          }
+        } footer: {
+          if isLoading {
+            Text(isLoading ? "Loading..." : "End")
+          }
         }
-      }
-      if isLoading {
-        Text(isLoading ? "Loading..." : "End")
       }
     }
     .onAdditionalLoading(isLoading: $isLoading) {
@@ -33,10 +38,20 @@ struct OnAdditionalLoading_Previews: View, PreviewProvider {
       print("appended")
     }
   }
-  
+
   static var previews: some View {
     Self()
   }
 }
 
+private struct Cell: View {
 
+  let name: String
+  let actionHandler: () -> Void
+
+  var body: some View {
+    let _ = print("Render \(name)")
+    Text(name)
+      .font(.title)
+  }
+}

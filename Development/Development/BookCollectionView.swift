@@ -428,6 +428,23 @@ struct BookPlatformList: View, PreviewProvider {
   return Preview()
 }
 
+private struct GridCell: View {
+
+  let index: Int
+  let item: Item
+  let action: () -> Void
+
+  var body: some View {
+    let _ = Self._printChanges()
+    let _ = print("GridCell \(index)")
+    VStack {
+      Cell(index: index, item: item)
+    }
+  }
+
+}
+
+
 #Preview("Simple grid layout") {
 
   struct Book: View {
@@ -448,7 +465,7 @@ struct BookPlatformList: View, PreviewProvider {
         content: {
           Section {
             SelectableForEach(
-              data: Item.mock(100),
+              data: Item.mock(1000),
               selection: .multiple(
                 selected: selected,
                 canSelectMore: selected.count < 3,
@@ -463,7 +480,9 @@ struct BookPlatformList: View, PreviewProvider {
               ),
               selectionIdentifier: \.id,
               cell: { index, item in
-                Cell(index: index, item: item)
+                GridCell(index: index, item: item, action: {
+                  print("GridCell \(index)")
+                })
               }
             )
           } footer: {
