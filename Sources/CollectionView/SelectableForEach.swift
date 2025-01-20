@@ -80,11 +80,11 @@ public struct UpdateSelectionAction: Equatable {
   
   private let handler: (Bool) -> Void
 
-  nonisolated init(handler: @escaping (Bool) -> Void) {
+  nonisolated public init(handler: @escaping (Bool) -> Void) {
     self.handler = handler
   }
 
-  func callAsFunction(_ value: Bool) {
+  public func callAsFunction(_ value: Bool) {
     handler(value)
   }
 
