@@ -428,26 +428,47 @@ struct BookPlatformList: View, PreviewProvider {
   return Preview()
 }
 
+protocol SomeExistential {}
+
 private struct GridCell: View {
 
   let index: Int
   let item: Item
-  let action: () -> Void
+  var object: (any SomeExistential)? = nil
 
   var body: some View {
     let _ = Self._printChanges()
     let _ = print("GridCell \(index)")
     VStack {
-      Cell(index: index, item: item)
+      HStack {
+        Text(item.title)
+      }
     }
   }
 
 }
 
-
 #Preview("Simple grid layout") {
 
   struct Book: View {
+
+    struct Wrap<Content: View>: View {
+
+      let action: () -> Void
+      let content: Content
+
+      init(
+        action: @escaping () -> Void,
+        @ViewBuilder content: () -> Content
+      ) {
+        self.action = action
+        self.content = content()
+      }
+
+      var body: some View {
+        content
+      }
+    }
 
     @State var selected: Set<Item.ID> = .init()
 
@@ -464,27 +485,18 @@ private struct GridCell: View {
         ),
         content: {
           Section {
-            SelectableForEach(
-              data: Item.mock(1000),
-              selection: .multiple(
-                selected: selected,
-                canSelectMore: selected.count < 3,
-                onChange: { e, action in
-                  switch action {
-                  case .selected:
-                    selected.insert(e)
-                  case .deselected:
-                    selected.remove(e)
-                  }
-                }
-              ),
-              selectionIdentifier: \.id,
-              cell: { index, item in
-                GridCell(index: index, item: item, action: {
-                  print("GridCell \(index)")
-                })
+            ForEach(
+              Item.mock(1000)
+            ) { item in
+              Control {
+                print("hit")
+              } content: {
+                GridCell(
+                  index: 0,
+                  item: item
+                )
               }
-            )
+            }
           } footer: {
             Text("Section Footer")
           }
@@ -495,4 +507,76 @@ private struct GridCell: View {
   }
 
   return Book()
+
+}
+
+struct Control<Content: View>: View {
+
+  let action: () -> Void
+  let content: Content
+
+  @State private var isPressing: Bool = false
+
+  init(
+    action: @escaping () -> Void,
+    @ViewBuilder content: () -> Content
+  ) {
+    self.action = action
+    self.content = content()
+  }
+
+  var body: some View {
+    let _ = Self._printChanges()
+    content
+      .contentShape(Rectangle())
+      .allowsHitTesting(true)
+      ._onButtonGesture(
+        pressing: { isPressing in
+          self.isPressing = isPressing
+        }
+      ) {
+        action()
+      }
+      .modifier(
+        isPressing ?
+        ControlStyleModifier(
+          opacity: 0.5
+        ) : ControlStyleModifier()
+      )
+      .animation(.spring(response: 0.2, dampingFraction: 1, blendDuration: 0), value: isPressing)
+  }
+}
+
+public struct ControlStyleModifier: ViewModifier {
+
+  public let opacity: Double
+  public let scale: CGSize
+  public let overlayColor: Color
+  public let offset: CGSize
+  public let blurRadius: Double
+
+  public init(
+    opacity: Double = 1,
+    scale: CGSize = .init(width: 1, height: 1),
+    overlayColor: Color = .clear,
+    offset: CGSize = .zero,
+    blurRadius: Double = 0
+  ) {
+    self.opacity = opacity
+    self.scale = scale
+    self.overlayColor = overlayColor
+    self.offset = offset
+    self.blurRadius = blurRadius
+  }
+
+  public func body(content: Content) -> some View {
+
+    content
+      .opacity(opacity)
+      .overlay(overlayColor)
+      .scaleEffect(scale)
+      .offset(offset)
+      .blur(radius: blurRadius)
+  }
+
 }

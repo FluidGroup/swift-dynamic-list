@@ -72,12 +72,8 @@ extension EnvironmentValues {
   @Entry public var collectionView_updateSelection: UpdateSelectionAction = .init { _ in }
 }
 
-public struct UpdateSelectionAction: Equatable {
+public struct UpdateSelectionAction {
 
-  public nonisolated static func == (lhs: UpdateSelectionAction, rhs: UpdateSelectionAction) -> Bool {
-    true
-  }
-  
   private let handler: (Bool) -> Void
 
   nonisolated public init(handler: @escaping (Bool) -> Void) {
