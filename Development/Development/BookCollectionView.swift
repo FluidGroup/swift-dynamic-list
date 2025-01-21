@@ -526,7 +526,6 @@ struct Control<Content: View>: View {
   }
 
   var body: some View {
-    let _ = Self._printChanges()
     content
       .contentShape(Rectangle())
       .allowsHitTesting(true)
