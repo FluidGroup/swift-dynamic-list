@@ -30,6 +30,9 @@ struct Cell: View {
   }
   
   var body: some View {
+
+    let _ = Self._printChanges()
+
     HStack {
       Circle()
         .fill(.purple)

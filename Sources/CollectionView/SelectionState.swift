@@ -34,7 +34,7 @@ extension SelectionState {
          .init(handler: { isSelected in
            self.update(isSelected: isSelected, for: identifier)
          })
-      )    
+      )
   }
   
 }
