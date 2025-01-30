@@ -20,6 +20,10 @@ let package = Package(
       name: "ScrollTracking",
       targets: ["ScrollTracking"]
     ),
+    .library(
+      name: "StickyHeader",
+      targets: ["StickyHeader"]
+    ),
   ],
   dependencies: [
     .package(url: "https://github.com/FluidGroup/swift-indexed-collection", from: "0.2.1"),
@@ -46,6 +50,11 @@ let package = Package(
       dependencies: [
         .product(name: "SwiftUIIntrospect", package: "swiftui-introspect"),
         .product(name: "WithPrerender", package: "swift-with-prerender"),
+      ]
+    ),
+    .target(
+      name: "StickyHeader",
+      dependencies: [
       ]
     ),
     .testTarget(
