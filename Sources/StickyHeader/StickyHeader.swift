@@ -81,7 +81,10 @@ public struct StickyHeader<Content: View>: View {
         $0.frame(in: .global)
       },
       action: { value in
-        topMargin = value.minY
+        let minY = value.minY
+        if minY >= 0, topMargin != minY {
+          topMargin = minY
+        }
       }
     )
     .onGeometryChange(
