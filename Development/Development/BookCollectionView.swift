@@ -36,7 +36,8 @@ struct BookCollectionViewSingleSection: View, PreviewProvider {
               selected: selected,
               onChange: { e in
                 selected = e
-              }),
+              }
+            ),
             selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
@@ -75,7 +76,8 @@ struct BookCollectionViewSingleSectionNoSeparator: View, PreviewProvider {
               selected: selected,
               onChange: { e in
                 selected = e
-              }),
+              }
+            ),
             selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
@@ -123,7 +125,8 @@ struct BookCollectionViewCombined: View, PreviewProvider {
               selected: selected,
               onChange: { e in
                 selected = e
-              }),
+              }
+            ),
             selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
@@ -138,7 +141,8 @@ struct BookCollectionViewCombined: View, PreviewProvider {
               selected: selected2,
               onChange: { e in
                 selected2 = e
-              }),
+              }
+            ),
             selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
@@ -179,7 +183,8 @@ struct BookCollectionViewCombined: View, PreviewProvider {
               selected: selected,
               onChange: { e in
                 selected = e
-              }),
+              }
+            ),
             selectionIdentifier: \.self,
             cell: { index, item in
               Cell(index: index, item: item)
@@ -221,7 +226,8 @@ struct BookCollectionViewCombined: View, PreviewProvider {
                 case .deselected:
                   selected.remove(e)
                 }
-              }),
+              }
+            ),
             selectionIdentifier: \.id,
             cell: { index, item in
               Cell(index: index, item: item)
@@ -325,7 +331,8 @@ struct BookPlatformList: View, PreviewProvider {
           selected: selected,
           onChange: { selected in
             self.selected = selected
-          }),
+          }
+        ),
         selectionIdentifier: \.id,
         cell: { index, item in
           Cell(index: index, item: item)
@@ -358,7 +365,8 @@ struct BookPlatformList: View, PreviewProvider {
             case .deselected:
               selected.remove(e)
             }
-          }),
+          }
+        ),
         selectionIdentifier: \.id,
         cell: { index, item in
           Cell(index: index, item: item)
@@ -372,18 +380,18 @@ struct BookPlatformList: View, PreviewProvider {
 }
 
 #Preview("Scrollable Multiple selection") {
-  
+
   struct Preview: View {
-    
+
     @State var selected: Set<Item.ID> = .init()
-    
+
     var body: some View {
-      
-      ScrollView {        
-        
+
+      ScrollView {
+
         header
           .padding(.horizontal, 20)
-        
+
         SelectableForEach(
           data: Item.mock(10),
           selection: .multiple(
@@ -396,18 +404,19 @@ struct BookPlatformList: View, PreviewProvider {
               case .deselected:
                 selected.remove(e)
               }
-            }),
+            }
+          ),
           selectionIdentifier: \.id,
           cell: { index, item in
             Cell(index: index, item: item)
           }
         )
       }
-      
+
     }
-    
+
     private var header: some View {
-      ZStack {      
+      ZStack {
         RoundedRectangle(cornerRadius: 16)
           .fill(Color(white: 0, opacity: 0.2))
         Text("Header")
@@ -415,44 +424,158 @@ struct BookPlatformList: View, PreviewProvider {
       .frame(height: 120)
     }
   }
-  
+
   return Preview()
 }
 
+protocol SomeExistential {}
+
+private struct GridCell: View {
+
+  let index: Int
+  let item: Item
+  var object: (any SomeExistential)? = nil
+
+  var body: some View {
+    let _ = Self._printChanges()
+    let _ = print("GridCell \(index)")
+    VStack {
+      HStack {
+        Text(item.title)
+      }
+    }
+  }
+
+}
+
 #Preview("Simple grid layout") {
-  
+
   struct Book: View {
-    
+
+    struct Wrap<Content: View>: View {
+
+      let action: () -> Void
+      let content: Content
+
+      init(
+        action: @escaping () -> Void,
+        @ViewBuilder content: () -> Content
+      ) {
+        self.action = action
+        self.content = content()
+      }
+
+      var body: some View {
+        content
+      }
+    }
+
     @State var selected: Set<Item.ID> = .init()
-    
+
     var body: some View {
-      
+
       CollectionView(
-        layout: .grid,
+        layout: .grid(
+          gridItems: [
+            .init(.flexible(minimum: 0, maximum: .infinity), spacing: 16),
+            .init(.flexible(minimum: 0, maximum: .infinity), spacing: 16),
+            .init(.flexible(minimum: 0, maximum: .infinity), spacing: 16),
+          ],
+          direction: .vertical
+        ),
         content: {
-          SelectableForEach(
-            data: Item.mock(),
-            selection: .multiple(
-              selected: selected,
-              canSelectMore: selected.count < 3,
-              onChange: { e, action in
-                switch action {
-                case .selected:
-                  selected.insert(e)
-                case .deselected:
-                  selected.remove(e)
-                }
+          Section {
+            ForEach(
+              Item.mock(1000)
+            ) { item in
+              Control {
+                print("hit")
+              } content: {
+                GridCell(
+                  index: 0,
+                  item: item
+                )
               }
-            ),
-            selectionIdentifier: \.id,
-            cell: { index, item in
-              Cell(index: index, item: item)
             }
-          )
+          } footer: {
+            Text("Section Footer")
+          }
+
         }
       )
     }
   }
-  
+
   return Book()
+
+}
+
+struct Control<Content: View>: View {
+
+  let action: () -> Void
+  let content: Content
+
+  @State private var isPressing: Bool = false
+
+  init(
+    action: @escaping () -> Void,
+    @ViewBuilder content: () -> Content
+  ) {
+    self.action = action
+    self.content = content()
+  }
+
+  var body: some View {
+    content
+      .contentShape(Rectangle())
+      .allowsHitTesting(true)
+      ._onButtonGesture(
+        pressing: { isPressing in
+          self.isPressing = isPressing
+        }
+      ) {
+        action()
+      }
+      .modifier(
+        isPressing ?
+        ControlStyleModifier(
+          opacity: 0.5
+        ) : ControlStyleModifier()
+      )
+      .animation(.spring(response: 0.2, dampingFraction: 1, blendDuration: 0), value: isPressing)
+  }
+}
+
+public struct ControlStyleModifier: ViewModifier {
+
+  public let opacity: Double
+  public let scale: CGSize
+  public let overlayColor: Color
+  public let offset: CGSize
+  public let blurRadius: Double
+
+  public init(
+    opacity: Double = 1,
+    scale: CGSize = .init(width: 1, height: 1),
+    overlayColor: Color = .clear,
+    offset: CGSize = .zero,
+    blurRadius: Double = 0
+  ) {
+    self.opacity = opacity
+    self.scale = scale
+    self.overlayColor = overlayColor
+    self.offset = offset
+    self.blurRadius = blurRadius
+  }
+
+  public func body(content: Content) -> some View {
+
+    content
+      .opacity(opacity)
+      .overlay(overlayColor)
+      .scaleEffect(scale)
+      .offset(offset)
+      .blur(radius: blurRadius)
+  }
+
 }

@@ -2,17 +2,16 @@ import SwiftUI
 
 public struct StickyHeaderContext {
   public let topMargin: CGFloat
-  
+
   init(topMargin: CGFloat) {
     self.topMargin = topMargin
   }
 }
 
-/** 
- A view that sticks to the top of the screen in a ScrollView.
- When it's bouncing, it stretches the content.
- To use this view, you need to call ``View.enableStickyHeader()`` modifier to the ScrollView. 
- */
+///
+/// A view that sticks to the top of the screen in a ScrollView.
+/// When it's bouncing, it stretches the content.
+/// To use this view, you need to call ``View.enableStickyHeader()`` modifier to the ScrollView.
 public struct StickyHeader<Content: View>: View {
 
   /**
@@ -24,7 +23,6 @@ public struct StickyHeader<Content: View>: View {
     /// Uses the fixed height.
     case fixed(CGFloat)
   }
-
 
   public let sizing: Sizing
   public let content: (StickyHeaderContext) -> Content
@@ -42,13 +40,13 @@ public struct StickyHeader<Content: View>: View {
   }
 
   public var body: some View {
-    
+
     let offsetY: CGFloat = 0
-    
+
     let context = StickyHeaderContext(
       topMargin: topMargin
     )
-    
+
     Group {
       switch sizing {
       case .content:
@@ -58,23 +56,25 @@ public struct StickyHeader<Content: View>: View {
               baseContentHeight = size.height
             }
           }
-          .frame(height: baseContentHeight.map { 
-            $0 + stretchingValue
-          })
+          .frame(
+            height: baseContentHeight.map {
+              $0 + stretchingValue
+            }
+          )
           .offset(y: -stretchingValue)
-        // container
+          // container
           .frame(height: baseContentHeight, alignment: .top)
 
       case .fixed(let height):
-                       
+
         content(context)
           .frame(height: height + stretchingValue + offsetY)
           .offset(y: -offsetY)
           .offset(y: -stretchingValue)
-        // container
+          // container
           .frame(height: height, alignment: .top)
       }
-    }   
+    }
     .onGeometryChange(
       for: CGRect.self,
       of: {
@@ -82,7 +82,8 @@ public struct StickyHeader<Content: View>: View {
       },
       action: { value in
         topMargin = value.minY
-      })
+      }
+    )
     .onGeometryChange(
       for: CGRect.self,
       of: {
@@ -107,14 +108,14 @@ extension View {
 
 #Preview("dynamic") {
   ScrollView {
-    
+
     StickyHeader(sizing: .content) { context in
-          
+
       ZStack {
-        
-        Color.red          
-          .padding(.top, -context.topMargin)        
-                  
+
+        Color.red
+          .padding(.top, -context.topMargin)
+
         VStack {
           Text("StickyHeader")
           Text("StickyHeader")
@@ -122,11 +123,11 @@ extension View {
         }
         .border(Color.red)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-//        .background(.yellow)               
+        //        .background(.yellow)
       }
-      
+
     }
-    
+
     ForEach(0..<100, id: \.self) { _ in
       Text("Hello World!")
         .frame(maxWidth: .infinity)
@@ -138,13 +139,13 @@ extension View {
 
 #Preview("dynamic full") {
   ScrollView {
-    
+
     StickyHeader(sizing: .content) { context in
-      
+
       ZStack {
-        
+
         Color.red
-        
+
         VStack {
           Text("StickyHeader")
           Text("StickyHeader")
@@ -156,12 +157,12 @@ extension View {
         .background(
           Color.green
             .padding(.top, -100)
-          
+
         )
       }
-      
+
     }
-    
+
     ForEach(0..<100, id: \.self) { _ in
       Text("Hello World!")
         .frame(maxWidth: .infinity)
@@ -172,9 +173,9 @@ extension View {
 
 #Preview("fixed") {
   ScrollView {
-    
+
     StickyHeader(sizing: .fixed(300)) { context in
-      
+
       Rectangle()
         .stroke(lineWidth: 10)
         .overlay(
@@ -185,7 +186,7 @@ extension View {
           }
         )
     }
-    
+
     ForEach(0..<100, id: \.self) { _ in
       Text("Hello World!")
         .frame(maxWidth: .infinity)
@@ -197,13 +198,13 @@ extension View {
 
 #Preview("fixed full") {
   ScrollView {
-    
+
     StickyHeader(sizing: .fixed(300)) { context in
-            
+
       ZStack {
-        
+
         Color.red
-        
+
         VStack {
           Text("StickyHeader")
           Text("StickyHeader")
@@ -211,7 +212,7 @@ extension View {
         }
         .border(Color.red)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-//        .background(.yellow)
+        //        .background(.yellow)
         .background(
           Color.green
             .padding(.top, -context.topMargin)
@@ -219,7 +220,7 @@ extension View {
         )
       }
     }
-    
+
     ForEach(0..<100, id: \.self) { _ in
       Text("Hello World!")
         .frame(maxWidth: .infinity)

@@ -155,7 +155,7 @@ public enum CollectionViewLayouts {
   }
 
   public struct Grid: CollectionViewLayoutType {
-    
+
     public let gridItems: [GridItem]
 
     public let direction: CollectionViewListDirection
@@ -165,7 +165,7 @@ public enum CollectionViewLayouts {
     public var contentPadding: EdgeInsets
 
     public var spacing: CGFloat?
-    
+
     public init(
       gridItems: [GridItem],
       direction: CollectionViewListDirection,
@@ -236,13 +236,13 @@ extension CollectionViewLayoutType where Self == CollectionViewLayouts.List<Empt
 
 }
 
-extension CollectionViewLayoutType where Self == CollectionViewLayouts.Grid {
+extension CollectionViewLayoutType {
 
   public static func grid(
     gridItems: [GridItem],
     direction: CollectionViewListDirection,
     spacing: CGFloat? = nil
-  ) -> Self {
+  ) -> Self where Self == CollectionViewLayouts.Grid {
     CollectionViewLayouts.Grid(
       gridItems: gridItems,
       direction: direction,

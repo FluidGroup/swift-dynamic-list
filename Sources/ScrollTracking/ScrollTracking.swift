@@ -27,7 +27,7 @@ extension ScrollView {
     isEnabled: Bool = true,
     leadingScreens: Double = 2,
     isLoading: Binding<Bool>,
-    _ handler: @escaping @MainActor  () async -> Void
+    onLoad: @escaping @MainActor  () async -> Void
   ) -> some View {
 
     modifier(
@@ -36,7 +36,7 @@ extension ScrollView {
           isEnabled: isEnabled,
           leadingScreens: leadingScreens,
           isLoading: isLoading,
-          handler: handler
+          onLoad: onLoad
         )
       )
     )
@@ -50,18 +50,18 @@ public struct AdditionalLoading: Sendable {
   public let isEnabled: Bool
   public let leadingScreens: Double
   public let isLoading: Binding<Bool>
-  public let handler: @MainActor () async -> Void
-  
+  public let onLoad: @MainActor () async -> Void
+
   public init(
     isEnabled: Bool,
     leadingScreens: Double,
     isLoading: Binding<Bool>,
-    handler: @escaping @MainActor () async -> Void
+    onLoad: @escaping @MainActor () async -> Void
   ) {
     self.isEnabled = isEnabled
     self.leadingScreens = leadingScreens
     self.isLoading = isLoading
-    self.handler = handler
+    self.onLoad = onLoad
   }
   
 }
@@ -155,7 +155,7 @@ private struct _Modifier: ViewModifier {
 
       let task = Task { @MainActor in
         await withTaskCancellationHandler {
-          await additionalLoading.handler()
+          await additionalLoading.onLoad()
           additionalLoading.isLoading.wrappedValue = false
           taskBox.withLock { $0 = nil }
         } onCancel: {

@@ -25,16 +25,16 @@ extension SelectionState {
     
     let isSelected: Bool = isSelected(for: identifier)
     let isDisabled: Bool = !isEnabled(for: identifier)
-    
+
     return body
       .disabled(isDisabled)
       .environment(\.collectionView_isSelected, isSelected)
       .environment(
         \.collectionView_updateSelection,
-         { isSelected in
+         .init(handler: { isSelected in
            self.update(isSelected: isSelected, for: identifier)
-         }
-      )    
+         })
+      )
   }
   
 }
