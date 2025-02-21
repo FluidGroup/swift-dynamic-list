@@ -156,7 +156,6 @@ extension View {
         }
       }            
     }
-    .padding(.top, 20)
         
   }
   .enableStickyHeader()
