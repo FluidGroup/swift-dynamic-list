@@ -1,10 +1,21 @@
 import SwiftUI
 
 public struct StickyHeaderContext {
-  public let topMargin: CGFloat
 
-  init(topMargin: CGFloat) {
+  public enum Phase {
+    case idle
+    case stretching
+  }
+
+  public let topMargin: CGFloat
+  public let phase: Phase
+
+  init(
+    topMargin: CGFloat,
+    phase: Phase
+  ) {
     self.topMargin = topMargin
+    self.phase = phase
   }
 }
 
@@ -44,7 +55,8 @@ public struct StickyHeader<Content: View>: View {
     let offsetY: CGFloat = 0
 
     let context = StickyHeaderContext(
-      topMargin: topMargin
+      topMargin: topMargin,
+      phase: stretchingValue > 0 ? .stretching : .idle
     )
 
     Group {
