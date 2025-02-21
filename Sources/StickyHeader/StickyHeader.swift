@@ -86,29 +86,27 @@ public struct StickyHeader<Content: View>: View {
           // container
           .frame(height: height, alignment: .top)
       }
-    }
-    .onGeometryChange(
-      for: CGRect.self,
-      of: {
-        $0.frame(in: .global)
-      },
-      action: { value in
-        let minY = value.minY
-        if minY >= 0, topMargin != minY {
-          topMargin = minY
-        }
+    }.onGeometryChange(for: Pair.self, of: {
+      Pair(
+        minYInGlobal: $0.frame(in: .global).minY,
+        minYInCoordinateSpace: $0.frame(in: .named(coordinateSpaceName)).minY
+      )
+    }, action: { pair in 
+      
+      self.stretchingValue = max(0, pair.minYInCoordinateSpace)
+      
+      let minY = pair.minYInGlobal
+      if minY >= 0, topMargin != minY {
+        topMargin = minY - stretchingValue
       }
-    )
-    .onGeometryChange(
-      for: CGFloat.self,
-      of: {
-        $0.frame(in: .named(coordinateSpaceName)).minY
-      },
-      action: { value in
-        self.stretchingValue = max(0, value)
-      })
-
+    })
+  
   }
+}
+
+private struct Pair: Equatable {
+  let minYInGlobal: CGFloat
+  let minYInCoordinateSpace: CGFloat
 }
 
 private let coordinateSpaceName = "app.muukii.stickyHeader.scrollView"
@@ -123,33 +121,45 @@ extension View {
 
 #Preview("dynamic") {
   ScrollView {
-
-    StickyHeader(sizing: .content) { context in
-
-      ZStack {
-
-        Color.red
-          .padding(.top, -context.topMargin)
-
-        VStack {
-          Text("StickyHeader")
-          Text("StickyHeader")
-          Text("StickyHeader")
-        }
-        .border(Color.red)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        //        .background(.yellow)
+    
+    Section {
+      
+      ForEach(0..<100, id: \.self) { _ in
+        Text("Hello World!")
+          .frame(maxWidth: .infinity)
       }
-
+      
+    } header: {
+      
+      StickyHeader(sizing: .content) { context in
+        
+        ZStack {
+          
+          Rectangle()
+            .stroke(lineWidth: 10)
+            .padding(.top, -context.topMargin)
+          //
+          
+          VStack {
+            Text("StickyHeader")
+            Text("StickyHeader")
+            Text("StickyHeader")
+          }
+          .border(Color.red)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          //        .background(.yellow)
+          //        .background(
+          //          Color.green
+          //            .padding(.top, -context.topMargin)
+          //
+          //        )
+        }
+      }            
     }
-
-    ForEach(0..<100, id: \.self) { _ in
-      Text("Hello World!")
-        .frame(maxWidth: .infinity)
-    }
+    .padding(.top, 20)
+        
   }
   .enableStickyHeader()
-  .padding(.vertical, 100)
 }
 
 #Preview("dynamic full") {
@@ -214,32 +224,41 @@ extension View {
 #Preview("fixed full") {
   ScrollView {
 
-    StickyHeader(sizing: .fixed(300)) { context in
+    Section {
 
-      ZStack {
-
-        Color.red
-
-        VStack {
-          Text("StickyHeader")
-          Text("StickyHeader")
-          Text("StickyHeader")
-        }
-        .border(Color.red)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        //        .background(.yellow)
-        .background(
-          Color.green
-            .padding(.top, -context.topMargin)
-
-        )
+      ForEach(0..<100, id: \.self) { _ in
+        Text("Hello World!")
+          .frame(maxWidth: .infinity)
       }
-    }
+    } header: {
 
-    ForEach(0..<100, id: \.self) { _ in
-      Text("Hello World!")
-        .frame(maxWidth: .infinity)
+      StickyHeader(sizing: .fixed(300)) { context in
+
+        ZStack {
+
+          Color.red
+            .padding(.top, -context.topMargin)
+          //
+
+          VStack {
+            Text("StickyHeader")
+            Text("StickyHeader")
+            Text("StickyHeader")
+          }
+          .border(Color.red)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          //        .background(.yellow)
+          //        .background(
+          //          Color.green
+          //            .padding(.top, -context.topMargin)
+          //
+          //        )
+        }
+      }            
     }
+    .padding(.top, 20)
+    
+
   }
   .enableStickyHeader()
 
