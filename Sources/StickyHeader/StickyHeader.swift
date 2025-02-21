@@ -88,12 +88,12 @@ public struct StickyHeader<Content: View>: View {
       }
     )
     .onGeometryChange(
-      for: CGRect.self,
+      for: CGFloat.self,
       of: {
-        $0.frame(in: .named(coordinateSpaceName))
+        $0.frame(in: .named(coordinateSpaceName)).minY
       },
       action: { value in
-        self.stretchingValue = max(0, value.minY)
+        self.stretchingValue = max(0, value)
       })
 
   }
