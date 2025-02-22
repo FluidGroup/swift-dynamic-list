@@ -8,13 +8,16 @@ public struct StickyHeaderContext {
   }
 
   public let topMargin: CGFloat
+  public let stretchingValue: CGFloat
   public let phase: Phase
 
   init(
     topMargin: CGFloat,
+    stretchingValue: CGFloat,
     phase: Phase
   ) {
     self.topMargin = topMargin
+    self.stretchingValue = stretchingValue
     self.phase = phase
   }
 }
@@ -56,6 +59,7 @@ public struct StickyHeader<Content: View>: View {
 
     let context = StickyHeaderContext(
       topMargin: topMargin,
+      stretchingValue: stretchingValue,
       phase: stretchingValue > 0 ? .stretching : .idle
     )
 
