@@ -66,9 +66,13 @@ public struct AdditionalLoading: Sendable {
   
 }
 
+@MainActor
 private final class Controller: ObservableObject {
-  var scrollViewSubscription: AnyCancellable?
-  let currentLoadingTask: OSAllocatedUnfairLock<Task<Void, Never>?> = .init(initialState: nil)
+  
+  var scrollViewSubscription: AnyCancellable? = nil
+  var currentLoadingTask: Task<Void, Never>? = nil
+  
+  nonisolated init() {}
 }
 
 private struct _Modifier: ViewModifier {
@@ -135,39 +139,38 @@ private struct _Modifier: ViewModifier {
     }
   }
 
+  @MainActor
   private func trigger() {
 
     guard additionalLoading.isEnabled else {
       return
     }
-
-    let taskBox = controller.currentLoadingTask
     
-    taskBox.withLockUnchecked { currentTask in
-
-      guard currentTask == nil else {
-        return
-      }
-
-      withPrerender {        
-        additionalLoading.isLoading.wrappedValue = true
-      }
-
-      let task = Task { @MainActor in
-        await withTaskCancellationHandler {
-          await additionalLoading.onLoad()
+    guard controller.currentLoadingTask == nil else {
+      return
+    }
+    
+    withPrerender {        
+      additionalLoading.isLoading.wrappedValue = true
+    }
+    
+    let task = Task { @MainActor in
+      await withTaskCancellationHandler {
+        await additionalLoading.onLoad()
+        withPrerender { 
           additionalLoading.isLoading.wrappedValue = false
-          taskBox.withLock { $0 = nil }
-        } onCancel: {
+        }
+        controller.currentLoadingTask = nil
+      } onCancel: {
+        Task { @MainActor in 
           additionalLoading.isLoading.wrappedValue = false
-          taskBox.withLock { $0 = nil }
+          controller.currentLoadingTask = nil
         }
       }
-
-      currentTask = task
-
     }
-
+    
+    controller.currentLoadingTask = task
+        
   }
 
 }
