@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import UIKit
 import SwiftUI
 
@@ -108,3 +109,4 @@ private extension UIResponder {
     return next as? UIViewController ?? next?.parentViewController
   }
 }
+#endif

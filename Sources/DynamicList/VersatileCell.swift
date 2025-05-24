@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import UIKit
 
 public struct CellHighlightAnimationContext {
@@ -214,3 +215,4 @@ open class VersatileCell: UICollectionViewCell {
 
   }
 }
+#endif

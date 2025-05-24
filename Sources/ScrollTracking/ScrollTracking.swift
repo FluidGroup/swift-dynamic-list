@@ -45,6 +45,29 @@ extension ScrollView {
 
 }
 
+extension List {
+  @ViewBuilder
+  public func onAdditionalLoading(
+    isEnabled: Bool = true,
+    leadingScreens: Double = 2,
+    isLoading: Binding<Bool>,
+    onLoad: @escaping @MainActor  () async -> Void
+  ) -> some View {
+    
+    modifier(
+      _Modifier(
+        additionalLoading: .init(
+          isEnabled: isEnabled,
+          leadingScreens: leadingScreens,
+          isLoading: isLoading,
+          onLoad: onLoad
+        )
+      )
+    )
+    
+  }
+}
+
 public struct AdditionalLoading: Sendable {
   
   public let isEnabled: Bool
@@ -75,6 +98,7 @@ private final class Controller: ObservableObject {
   nonisolated init() {}
 }
 
+@available(iOS 15.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 private struct _Modifier: ViewModifier {
 
   @StateObject var controller: Controller = .init()
@@ -89,13 +113,12 @@ private struct _Modifier: ViewModifier {
 
   func body(content: Content) -> some View {
 
-    if #available(iOS 18, *) {
+    if #available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *) {
       content.onScrollGeometryChange(for: ScrollGeometry.self) { geometry in
 
         return geometry
 
       } action: { _, geometry in
-
         let triggers = calculate(
           contentOffsetY: geometry.contentOffset.y,
           boundsHeight: geometry.containerSize.height,
@@ -111,6 +134,8 @@ private struct _Modifier: ViewModifier {
 
       }
     } else {
+      
+      #if canImport(UIKit)
 
       content.introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
 
@@ -136,6 +161,9 @@ private struct _Modifier: ViewModifier {
 
         }
       }
+      #else
+      fatalError()
+      #endif
     }
   }
 
@@ -196,4 +224,38 @@ private func calculate(
   let remainingDistance = contentLength - viewLength - offset
 
   return (hasSmallContent || remainingDistance <= triggerDistance)
+}
+
+#Preview {
+  
+  List(0..<100) { index in
+    Text("Item \(index)")
+      .frame(height: 50)
+      .background(Color.red)
+  }
+  .onAdditionalLoading(isLoading: .constant(true), onLoad: {
+    print("Load more")
+  })
+  .onAppear {
+    print("Hello")
+  }
+}
+
+#Preview("ScrollView") {
+  
+  ScrollView {
+    LazyVStack {
+      ForEach(0..<100) { index in
+        Text("Item \(index)")
+          .frame(height: 50)
+          .background(Color.red)
+      }
+    }
+  }    
+  .onAdditionalLoading(isLoading: .constant(true), onLoad: {
+    print("Load more")
+  })
+  .onAppear {
+    print("Hello")
+  }
 }
