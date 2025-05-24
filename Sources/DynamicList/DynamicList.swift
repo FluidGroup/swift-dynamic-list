@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import SwiftUI
 
 public enum Selection<Data: Hashable> {
@@ -285,5 +286,7 @@ extension CellState {
     set { self[IsArchivedKey.self] = newValue }
   }
 }
+
+#endif
 
 #endif

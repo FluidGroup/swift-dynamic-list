@@ -1,4 +1,5 @@
 
+#if canImport(UIKit)
 import UIKit
 
 public struct CustomContentConfiguration<ContentView: UIView & UIContentView>: UIContentConfiguration {
@@ -20,3 +21,4 @@ public struct CustomContentConfiguration<ContentView: UIView & UIContentView>: U
   }
 
 }
+#endif

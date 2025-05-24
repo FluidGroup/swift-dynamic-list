@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import UIKit
 
 /// - Provides a timing to trigger batch fetching (adding more items)
@@ -176,3 +177,4 @@ final class ContentPagingTrigger {
     currentTask = task
   }
 }
+#endif

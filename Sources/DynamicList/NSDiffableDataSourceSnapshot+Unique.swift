@@ -1,5 +1,10 @@
 
+#if canImport(UIKit)
 import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
 
 public enum DiffableDataSourceError: Error, Sendable {
   case duplicatedSectionIdentifiers(debugDescription: String)
