@@ -51,8 +51,7 @@ let package = Package(
     .target(
       name: "ScrollTracking",
       dependencies: [
-        .product(name: "SwiftUIIntrospect", package: "swiftui-introspect"),
-        .product(name: "WithPrerender", package: "swift-with-prerender"),
+        .product(name: "SwiftUIIntrospect", package: "swiftui-introspect")
       ]
     ),
     .target(
