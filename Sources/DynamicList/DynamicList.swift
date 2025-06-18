@@ -69,10 +69,9 @@ public struct DynamicList<Section: Hashable & Sendable, Item: Hashable & Sendabl
     self.cellStates = cellStates
   }
 
-  public func scrolling(to item: ScrollTarget?) -> Self {
-    var modified = self
-    modified.scrollingTarget = item
-    return modified
+  public consuming func scrolling(to item: ScrollTarget?) -> Self {
+    self.scrollingTarget = item
+    return self
   }
 
   public func makeUIView(context: Context) -> DynamicListView<Section, Item> {
