@@ -20,15 +20,7 @@ struct BookCollectionViewSingleSection: View, PreviewProvider {
     var body: some View {
       CollectionView(
         layout: .list
-          .contentPadding(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-          .separator(
-            separator: {
-              RoundedRectangle(cornerRadius: 8)
-                .fill(.secondary)
-                .frame(height: 8)
-                .padding(.horizontal, 20)
-            }
-          ),
+          .contentPadding(.init(top: 0, leading: 0, bottom: 0, trailing: 0)),
         content: {
           SelectableForEach(
             data: Item.mock(),
@@ -170,12 +162,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
 
     var body: some View {
       CollectionView(
-        layout: .list.separator {
-          RoundedRectangle(cornerRadius: 8)
-            .fill(.secondary)
-            .frame(height: 2)
-            .padding(.horizontal, 20)
-        },
+        layout: .list,
         content: {
           SelectableForEach(
             data: Item.mock(),
@@ -207,12 +194,7 @@ struct BookCollectionViewCombined: View, PreviewProvider {
     var body: some View {
 
       CollectionView(
-        layout: .list.separator {
-          RoundedRectangle(cornerRadius: 8)
-            .fill(.secondary)
-            .frame(height: 2)
-            .padding(.horizontal, 20)
-        },
+        layout: .list,
         content: {
           SelectableForEach(
             data: Item.mock(),

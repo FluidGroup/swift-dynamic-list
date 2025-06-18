@@ -40,7 +40,7 @@ public enum CollectionViewLayouts {
     }
   }
 
-  public struct List<Separator: View>: CollectionViewLayoutType {
+  public struct List: CollectionViewLayoutType {
 
     public let direction: CollectionViewListDirection
 
@@ -48,36 +48,16 @@ public enum CollectionViewLayouts {
 
     public var contentPadding: EdgeInsets
 
-    private let separator: Separator
 
-    public init(
-      direction: CollectionViewListDirection,
-      contentPadding: EdgeInsets = .init(),
-      @ViewBuilder separator: () -> Separator
-    ) {
-      self.direction = direction
-      self.contentPadding = contentPadding
-      self.separator = separator()
-    }
 
     public init(
       direction: CollectionViewListDirection,
       contentPadding: EdgeInsets = .init()
-    ) where Separator == EmptyView {
+    ) {
       self.direction = direction
       self.contentPadding = contentPadding
-      self.separator = EmptyView()
     }
 
-    public func separator<NewSeparator: View>(
-      @ViewBuilder separator: () -> NewSeparator
-    ) -> List<NewSeparator> {
-      .init(
-        direction: direction,
-        contentPadding: contentPadding,
-        separator: separator
-      )
-    }
 
     public consuming func contentPadding(_ contentPadding: EdgeInsets) -> Self {
 
@@ -99,54 +79,20 @@ public enum CollectionViewLayouts {
 
         ScrollView(.vertical, showsIndicators: showsIndicators) {
 
-          if separator is EmptyView {
-            LazyVStack {
-              content
-            }
-            .padding(contentPadding)
-          } else {
-            UnaryViewReader(readingContent: content) { children in
-              let last = children.last?.id
-              LazyVStack {
-                ForEach(children) { child in
-                  child
-                  if child.id != last {
-                    separator
-                      ._identified(by: "separator-\(child.id)")
-                  }
-                }
-              }
-            }
-            .padding(contentPadding)
+          LazyVStack {
+            content
           }
+          .padding(contentPadding)
         }
 
       case .horizontal:
 
         ScrollView(.horizontal, showsIndicators: showsIndicators) {
 
-          if separator is EmptyView {
-            LazyHStack {
-              content
-            }
-            .padding(contentPadding)
-
-          } else {
-
-            UnaryViewReader(readingContent: content) { children in
-              let last = children.last?.id
-              LazyHStack {
-                ForEach(children) { child in
-                  child
-                  if child.id != last {
-                    separator
-                      ._identified(by: "separator-\(child.id)")
-                  }
-                }
-              }
-            }
-            .padding(contentPadding)
+          LazyHStack {
+            content
           }
+          .padding(contentPadding)
         }
 
       }
@@ -226,7 +172,7 @@ public enum CollectionViewLayouts {
 
 }
 
-extension CollectionViewLayoutType where Self == CollectionViewLayouts.List<EmptyView> {
+extension CollectionViewLayoutType where Self == CollectionViewLayouts.List {
 
   public static var list: Self {
     CollectionViewLayouts.List(
