@@ -19,10 +19,12 @@ public struct CollectionView<
   }
 
   public var body: some View {
-    ModifiedContent(
-      content: content,
-      modifier: layout
-    )    
+    Group {
+      ModifiedContent(
+        content: content,
+        modifier: layout
+      )
+    }
   }
 
 }
