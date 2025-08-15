@@ -22,6 +22,8 @@ public struct StickyHeaderContext {
   }
 }
 
+/// Could be replaced with visualEffect 
+/// https://nilcoalescing.com/blog/StretchyHeaderInSwiftUI/
 ///
 /// A view that sticks to the top of the screen in a ScrollView.
 /// When it's bouncing, it stretches the content.
