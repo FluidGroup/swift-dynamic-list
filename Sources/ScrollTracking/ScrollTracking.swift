@@ -2,7 +2,6 @@ import Combine
 import SwiftUI
 import SwiftUIIntrospect
 import os.lock
-import WithPrerender
 
 extension View {
   
@@ -178,14 +177,14 @@ private struct _Modifier: ViewModifier {
       return
     }
     
-    withPrerender {        
+    Task { @MainActor in
       additionalLoading.isLoading.wrappedValue = true
     }
     
     let task = Task { @MainActor in
       await withTaskCancellationHandler {
         await additionalLoading.onLoad()
-        withPrerender { 
+        Task { @MainActor in
           additionalLoading.isLoading.wrappedValue = false
         }
         controller.currentLoadingTask = nil
