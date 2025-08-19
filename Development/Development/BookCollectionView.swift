@@ -185,6 +185,43 @@ struct BookCollectionViewCombined: View, PreviewProvider {
   return Book()
 }
 
+#Preview("H / Custom List / Single selection") {
+
+  struct Book: View {
+
+    @State var selected: Item?
+
+    var body: some View {
+      CollectionView(
+        layout: CollectionViewLayouts.List(
+          direction: .horizontal
+        ),
+        content: {
+          SelectableForEach(
+            data: Item.mock(30),
+            selection: .single(
+              selected: selected,
+              onChange: { e in
+                selected = e
+              }
+            ),
+            selectionIdentifier: \.self,
+            cell: { index, item in
+              Cell(index: index, item: item)
+            }
+          )
+        }
+      )
+      .onAdditionalLoading(isEnabled: true, leadingScreens: 1, isLoading: .constant(true)) { 
+        print("onLoad next")
+      }
+    }
+  }
+
+  return Book()
+}
+
+
 #Preview("Custom List / Multiple selection") {
 
   struct Book: View {
